@@ -1,0 +1,35 @@
+### get reports (paginated)
+GET {{host}}/api/reports?cursor=&last=
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### get one report by id
+GET {{host}}/api/reports/1738014336625
+Content-Type: application/json
+Authorization: Bearer token
+
+### create report
+POST {{host}}/api/reports?hello=world
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{"vehicleId":"vehicle001"}
+
+### update report
+PUT {{host}}/api/reports/1736697686488
+Content-Type: application/json
+Authorization: Bearer token
+
+{"type":"custom"}
+
+### debug put
+PUT {{host}}/api/reports/debug?hello=world
+Content-Type: application/json
+Authorization: Bearer token
+
+{"type":"default"}
+
+### delete report
+DELETE {{host}}/api/reports/1736697686488
+Content-Type: application/json
+Authorization: Bearer token
