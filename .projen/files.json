@@ -15,7 +15,7 @@
     ".projen/tasks.json",
     "cdk.json",
     "LICENSE",
-    "src/ci/driversync-web-dynamic.json",
+    "src/ci/on-pretty-web-dynamic.json",
     "tsconfig.dev.json",
     "tsconfig.json"
   ],

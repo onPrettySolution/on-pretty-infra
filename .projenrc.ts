@@ -1,16 +1,16 @@
 import { execSync } from 'node:child_process';
 import { awscdk, JsonFile } from 'projen';
 import { GithubCredentials } from 'projen/lib/github';
-import { driverFECheckoutStep } from './src/constants';
+import { frontendCheckoutStep } from './src/constants';
 
 
 const project = new awscdk.AwsCdkTypeScriptApp({
   cdkVersion: '2.177.0',
   minNodeVersion: '22',
   defaultReleaseBranch: 'main',
-  name: 'driversync-infra',
+  name: 'on-pretty-infra',
   projenrcTs: true,
-  gitignore: ['.idea', 'driversync-web'],
+  gitignore: ['.idea', 'on-pretty-web'],
   githubOptions: { projenCredentials: GithubCredentials.fromApp() },
   release: false,
   tsconfig: {
@@ -32,13 +32,13 @@ const project = new awscdk.AwsCdkTypeScriptApp({
   ],
   devDeps: ['cdk-dia', '@types/express'],
 
-  workflowBootstrapSteps: [driverFECheckoutStep],
+  workflowBootstrapSteps: [frontendCheckoutStep],
   autoApproveOptions: { allowedUsernames: ['prettysolution[bot]', 'vasylherman'], secret: 'PR_AUTO_APPROVE' },
   autoApproveUpgrades: true,
 });
 
-const driverFrontCommitId = execSync('git -C driversync-web rev-parse --short HEAD').toString().trim();
-new JsonFile(project, 'src/ci/driversync-web-dynamic.json', { obj: { commitId: driverFrontCommitId } });
+const onPrettyFrontCommitId = execSync('git -C on-pretty-web rev-parse --short HEAD').toString().trim();
+new JsonFile(project, 'src/ci/on-pretty-web-dynamic.json', { obj: { commitId: onPrettyFrontCommitId } });
 
 const devPipeline: string =
   'cdk -a "npx ts-node -P tsconfig.json --prefer-ts-exts';

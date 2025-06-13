@@ -1,5 +1,5 @@
 {
-  "name": "driversync-infra",
+  "name": "on-pretty-infra",
   "scripts": {
     "build": "npx projen build",
     "bundle": "npx projen bundle",

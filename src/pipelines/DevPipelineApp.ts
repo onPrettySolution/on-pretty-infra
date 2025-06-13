@@ -22,7 +22,7 @@ class DevPipelineStack extends Stack {
         domainName: process.env.CDK_DOMAIN_NAME!,
         account: process.env.CDK_DEFAULT_ACCOUNT,
         region: process.env.CDK_DEFAULT_REGION,
-        subDomain: 'driversync',
+        subDomain: 'on-app', // be-on
         loginSubDomain: 'login',
         frontend: {
           VITE_COGNITO_AUTHORITY: process.env.VITE_COGNITO_AUTHORITY || 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_JKLmC0DZe',

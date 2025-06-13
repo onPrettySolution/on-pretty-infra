@@ -26,8 +26,8 @@ export class CloudFrontDistributionStack extends Stack {
   constructor(scope: Construct, id: string, props: CloudFrontDistributionStackProps) {
     super(scope, id, props);
 
-    const version = props.versions.driver.frontend.version;
-    const commitId = props.versions.driver.frontend.commitId;
+    const version = props.versions.myApp.frontend.version;
+    const commitId = props.versions.myApp.frontend.commitId;
 
     const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {
       domainName: props.env.domainName,
@@ -68,10 +68,10 @@ export class CloudFrontDistributionStack extends Stack {
 
     new BucketDeployment(this, 'BucketDeployment', {
       sources: [
-        Source.asset(path.join(process.cwd(), 'driversync-web'), {
+        Source.asset(path.join(process.cwd(), 'on-pretty-web'), {
           bundling: {
-            // image: DockerImage.fromRegistry('public.ecr.aws/docker/library/node:20.18.1'),
-            image: DockerImage.fromRegistry('node:20.18.1'),
+            // image: DockerImage.fromRegistry('public.ecr.aws/docker/library/node:22.16.0'),
+            image: DockerImage.fromRegistry('node:22.16.0'),
             user: 'root:root',
             command: ['sh', '-c', 'npm i && npm run build && cp -R ./dist/* /asset-output/'],
             environment: {

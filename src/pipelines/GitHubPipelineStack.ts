@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 import { MyAppStage } from './MyAppStage';
 import * as versions from '../ci/versions';
 import {
-  driverFECheckoutStep,
+  frontendCheckoutStep,
   GH_SUPPORT_DEPLOY_ROLE_NAME,
   PRIMARY_REGION,
   PROD_ACCOUNT, setNodeJSv22,
@@ -14,13 +14,13 @@ import {
 import { MyAppVersions } from '../interfaces';
 
 export const myAppVersions: MyAppVersions = {
-  driver: {
-    frontend: { version: versions.DriverFrontend['driversync-web'], commitId: versions.DriverFrontendDynamic.commitId },
+  myApp: {
+    frontend: { version: versions.OnPrettyFrontend["on-pretty-web"], commitId: versions.OnPrettyFrontendDynamic.commitId },
   },
 };
 
 const domainSettings = {
-  subDomain: 'driversync',
+  subDomain: 'be-on',
   loginSubDomain: 'login',
 };
 
@@ -39,9 +39,9 @@ export class GitHubPipelineStack extends Stack {
       awsCreds: AwsCredentials.fromOpenIdConnect({
         gitHubActionRoleArn: `arn:aws:iam::${STAGE_ACCOUNT}:role/${GH_SUPPORT_DEPLOY_ROLE_NAME}`,
       }),
-      preBuildSteps: [setNodeJSv22, driverFECheckoutStep],
+      preBuildSteps: [setNodeJSv22, frontendCheckoutStep],
     });
-    const stage = new MyAppStage(this, 'driver-stage', {
+    const stage = new MyAppStage(this, 'on-pretty-stage', {
       env: {
         account: STAGE_ACCOUNT,
         region: PRIMARY_REGION,
@@ -70,9 +70,9 @@ export class GitHubPipelineStack extends Stack {
       workflowPath: '.github/workflows/deploy-prod.yml',
       workflowName: 'deploy-prod',
       workflowTriggers: { push: { branches: ['prod'] } },
-      preBuildSteps: [setNodeJSv22, driverFECheckoutStep],
+      preBuildSteps: [setNodeJSv22, frontendCheckoutStep],
     });
-    const prod = new MyAppStage(this, 'driver-prod', {
+    const prod = new MyAppStage(this, 'on-pretty-prod', {
       env: {
         account: PROD_ACCOUNT,
         region: PRIMARY_REGION,

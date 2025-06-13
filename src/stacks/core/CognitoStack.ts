@@ -38,7 +38,7 @@ export class CognitoStack extends Stack {
     });
 
     const userPool01 = new UserPool(this, 'userPool01', {
-      userPoolName: 'simple-userPool01',
+      userPoolName: 'on-pretty-simple-userPool01',
       // signInAliases: {
       //   email: true,
       //   username: true,
@@ -88,11 +88,11 @@ export class CognitoStack extends Stack {
 
     // These used in Readme.md
     new StringParameter(this, 'userPoolProviderUrl01', {
-      parameterName: '/core/CognitoStack/userPool01/userPoolProviderUrl',
+      parameterName: '/on-pretty-infra/core/CognitoStack/userPool01/userPoolProviderUrl',
       stringValue: userPool01.userPoolProviderUrl,
     });
     new StringParameter(this, 'userPoolClientId01', {
-      parameterName: '/core/CognitoStack/userPoolClient01/userPoolClientId',
+      parameterName: '/on-pretty-infra/core/CognitoStack/userPoolClient01/userPoolClientId',
       stringValue: userPoolClient01.userPoolClientId,
     });
 

@@ -10,13 +10,13 @@ export const SECONDARY_REGION = 'us-west-2';
 export const CONNECTION_ARN = 'arn:aws:codestar-connections:us-east-1:536309290949:connection/8db45fc6-a823-4980-b94d-a7dcf69cfe99';
 export const GH_SUPPORT_DEPLOY_ROLE_NAME = 'GithubSupport-DeployRole';
 
-export const driverFECheckoutStep: JobStep = {
-  name: 'Checkout driversync-web',
+export const frontendCheckoutStep: JobStep = {
+  name: 'Checkout on-pretty-web',
   uses: 'actions/checkout@v4',
   with: {
-    repository: 'prettysolution/driversync-web',
-    path: 'driversync-web',
-    ref: versions.DriverFrontend['driversync-web'],
+    repository: 'onprettysolution/on-pretty-web',
+    path: 'on-pretty-web',
+    ref: versions.OnPrettyFrontend["on-pretty-web"],
     token: '${{ secrets.PRETTY_READ_PAT }}',
   },
 };
