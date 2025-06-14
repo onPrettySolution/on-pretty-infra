@@ -4,6 +4,7 @@ import {ThisEnvironment} from "../../interfaces";
 import {HostedZone} from "aws-cdk-lib/aws-route53";
 import {Certificate, CertificateValidation} from "aws-cdk-lib/aws-certificatemanager";
 import {Distribution, CfnDistribution} from "aws-cdk-lib/aws-cloudfront";
+import {Bucket} from "aws-cdk-lib/aws-s3";
 
 
 interface MultiTenantDistributionStackProps extends StackProps {
@@ -23,6 +24,8 @@ export class MultiTenantDistributionStack extends Stack {
             domainName: hostedZone.zoneName,
             subjectAlternativeNames: [`*.${hostedZone.zoneName}`],
         });
+
+        const onPrettyMTBucket = new Bucket(this, 'OnPrettyMTBucket')
 
 
     }
