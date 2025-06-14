@@ -51,7 +51,7 @@
     "@aws-sdk/util-dynamodb": "^3.828.0",
     "@types/aws-lambda": "^8.10.149",
     "aws-cdk-github-oidc": "^2.4.1",
-    "aws-cdk-lib": "^2.177.0",
+    "aws-cdk-lib": "^2.201.0",
     "cdk-pipelines-github": "^0.4.130",
     "constructs": "^10.0.5",
     "express": "^4.21.2",

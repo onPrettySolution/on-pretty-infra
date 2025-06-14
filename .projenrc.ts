@@ -5,7 +5,7 @@ import { frontendCheckoutStep } from './src/constants';
 
 
 const project = new awscdk.AwsCdkTypeScriptApp({
-  cdkVersion: '2.177.0',
+  cdkVersion: '2.201.0',
   minNodeVersion: '22',
   defaultReleaseBranch: 'main',
   name: 'on-pretty-infra',
