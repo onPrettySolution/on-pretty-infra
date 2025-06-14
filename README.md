@@ -9,8 +9,11 @@
 #### run express in server mode
 1. follow steps from [Set up DEV in your account](#set-up-dev-in-your-account)
 2. `export BASE_TABLE_NAME=$(aws ssm get-parameter --name "/on-pretty-infra/core/DynamoDbStack/Tables/Base" --query "Parameter.Value" --output text)`
-3. `npx projen express:run`
-4. [test your api](src/stacks/api-gateway/api-lambda/debug/report-api.http)
+3. `export MULTI_TENANT_DOMAIN_NAME=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/domainName" --query "Parameter.Value" --output text)`
+4. `export MULTI_TENANT_DISTRIBUTION_ID=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/DistributionId" --query "Parameter.Value" --output text)`
+5. `export MULTI_TENANT_DISTRIBUTION_ENDPOINT=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/distributionEndpoint" --query "Parameter.Value" --output text)`
+6. `npx projen express:run`
+7. [test your api](src/stacks/api-gateway/api-lambda/debug/report-api.http)
 
 #### deploy cloudfront
 1. `export VITE_COGNITO_AUTHORITY=$(aws ssm get-parameter --name "/core/CognitoStack/userPool01/userPoolProviderUrl" --query "Parameter.Value" --output text)`

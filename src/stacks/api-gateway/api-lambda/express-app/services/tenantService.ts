@@ -1,6 +1,12 @@
 import {TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
 import {docClient} from '../config/dynamoDB';
 import {Tenant, tableName, TenantOwner} from '../models/tenantModel';
+import {
+    CloudFrontClient,
+    CreateDistributionTenantCommand,
+    CreateDistributionTenantCommandInput
+} from '@aws-sdk/client-cloudfront';
+import {multiTenant} from "../config/multiTenant";
 
 /**
  * cursor is timestamp of last item
@@ -37,10 +43,27 @@ class TenantService {
 
     async createTenant(data: { username: string, tenantName: string }): Promise<Tenant> {
 
+        const cfClient = new CloudFrontClient();
+        const cfTenantInput: CreateDistributionTenantCommandInput = {
+            Name: data.tenantName,
+            DistributionId: multiTenant.distributionId,
+            Domains: [{Domain: `${data.tenantName}.${multiTenant.domainName}`}],
+            Parameters: [{Name: 'tenant-owner', Value: data.username}, {Name: 'tenant-name', Value: data.tenantName}]
+        }
+
+        const res = await cfClient.send(new CreateDistributionTenantCommand(cfTenantInput))
+        const tenantData = {
+            tenantOwner: data.username,
+            DistributionId: res.DistributionTenant?.DistributionId,
+            Domains: res.DistributionTenant?.Domains,
+            distributionEndpoint: multiTenant.distributionEndpoint
+        }
+
+
         // defining Tenant
         const tenant: Tenant = {
             tenantName: data.tenantName,
-            data: {username: data.username}
+            data: tenantData
         };
 
         const rawTenant = `${ENTITIES.TENANT}#${tenant.tenantName}`;
