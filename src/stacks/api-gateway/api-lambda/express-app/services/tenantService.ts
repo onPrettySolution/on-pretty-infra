@@ -56,6 +56,7 @@ class TenantService {
             tenantOwner: data.username,
             DistributionId: res.DistributionTenant?.DistributionId,
             Domains: res.DistributionTenant?.Domains,
+            Name: res.DistributionTenant?.Name,
             distributionEndpoint: multiTenant.distributionEndpoint
         }
 
