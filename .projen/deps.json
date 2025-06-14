@@ -80,6 +80,10 @@
       "type": "build"
     },
     {
+      "name": "@aws-sdk/client-cloudfront",
+      "type": "runtime"
+    },
+    {
       "name": "@aws-sdk/client-dynamodb",
       "type": "runtime"
     },
