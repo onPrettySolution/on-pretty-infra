@@ -11,10 +11,3 @@ const getDocClient = (): DynamoDBDocumentClient => {
   return dynamoDBDocumentClient;
 };
 export const docClient = getDocClient();
-
-/**
- * @deprecated Do not use deprecated ddbClient.
- * Use `getDocClient()` instead.
- */
-const ddbClient = new DynamoDBClient();
-export default ddbClient;

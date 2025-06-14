@@ -8,12 +8,12 @@ GET {{host}}/api/reports/1738014336625
 Content-Type: application/json
 Authorization: Bearer token
 
-### create report
-POST {{host}}/api/reports?hello=world
+### create tenant
+POST {{host}}/api/tenants
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
-{"vehicleId":"vehicle001"}
+{"tenantName":"tenant01"}
 
 ### update report
 PUT {{host}}/api/reports/1736697686488
