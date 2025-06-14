@@ -52,7 +52,8 @@ export class GitHubPipelineStack extends Stack {
                 multiTenant: {
                     domainName: 'on.stage.prettysolution.com',
                     distributionId: 'E18GDWUAFG5IU8',
-                    distributionEndpoint: 'd1fu2it2pa9bwt.cloudfront.net'
+                    distributionEndpoint: 'd1fu2it2pa9bwt.cloudfront.net',
+                    googleClientId: '290910305598-ffad60nk6msmk6fotqb724qngklt9thn.apps.googleusercontent.com'
                 },
                 ...domainSettings,
                 frontend: {
@@ -88,7 +89,8 @@ export class GitHubPipelineStack extends Stack {
                 multiTenant: {
                     domainName: 'on.prettysolution.com',
                     distributionId: '',
-                    distributionEndpoint: ''
+                    distributionEndpoint: '',
+                    googleClientId: '290910305598-ffad60nk6msmk6fotqb724qngklt9thn.apps.googleusercontent.com',
                 },
                 ...domainSettings,
                 frontend: {

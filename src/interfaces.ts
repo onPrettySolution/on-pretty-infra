@@ -7,6 +7,7 @@ export interface ThisEnvironment extends Environment {
     domainName: string;
     distributionId: string
     distributionEndpoint: string
+    googleClientId: string
   }
   loginSubDomain: string;
   frontend: {
