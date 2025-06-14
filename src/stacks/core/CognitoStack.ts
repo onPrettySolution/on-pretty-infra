@@ -124,7 +124,7 @@ export class CognitoStack extends Stack {
                 "s3:Abort*"
             ],
             resources: [onPrettyMTUploadBucket.arnForObjects('${cognito-identity.amazonaws.com:sub}/*')],
-            conditions: {StringEquals: {'s3:prefix': '${cognito-identity.amazonaws.com:sub}/'}},
+            // conditions: {StringEquals: {'s3:prefix': '${cognito-identity.amazonaws.com:sub}/'}},
         }))
 
         // These used in Readme.md
