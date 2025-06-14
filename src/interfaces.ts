@@ -5,6 +5,8 @@ export interface ThisEnvironment extends Environment {
   subDomain: string;
   multiTenant: {
     domainName: string;
+    distributionId: string
+    distributionEndpoint: string
   }
   loginSubDomain: string;
   frontend: {
