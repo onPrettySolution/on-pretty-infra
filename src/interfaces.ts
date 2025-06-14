@@ -3,6 +3,9 @@ import { Environment } from 'aws-cdk-lib';
 export interface ThisEnvironment extends Environment {
   domainName: string;
   subDomain: string;
+  multiTenant: {
+    domainName: string;
+  }
   loginSubDomain: string;
   frontend: {
     VITE_COGNITO_AUTHORITY: string;

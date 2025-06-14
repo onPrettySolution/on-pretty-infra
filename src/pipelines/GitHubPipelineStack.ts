@@ -46,6 +46,9 @@ export class GitHubPipelineStack extends Stack {
         account: STAGE_ACCOUNT,
         region: PRIMARY_REGION,
         domainName: 'stage.prettysolution.com',
+        multiTenant: {
+          domainName: 'on.stage.prettysolution.com'
+        },
         ...domainSettings,
         frontend: {
           VITE_COGNITO_AUTHORITY: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_h2ixgDZEz',
@@ -77,6 +80,9 @@ export class GitHubPipelineStack extends Stack {
         account: PROD_ACCOUNT,
         region: PRIMARY_REGION,
         domainName: 'prettysolution.com',
+        multiTenant: {
+          domainName: 'on.prettysolution.com'
+        },
         ...domainSettings,
         frontend: {
           VITE_COGNITO_AUTHORITY: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_JKLmC0DZe',

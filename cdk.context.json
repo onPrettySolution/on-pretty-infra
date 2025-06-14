@@ -10,5 +10,9 @@
   "hosted-zone:account=653268860643:domainName=vb.prettysolution.com:region=eu-west-1": {
     "Id": "/hostedzone/Z059176320YZ5QJ2C01B4",
     "Name": "vb.prettysolution.com."
+  },
+  "hosted-zone:account=277707141071:domainName=on.stage.prettysolution.com:region=us-east-1": {
+    "Id": "/hostedzone/Z00342753POC5ON0KZ8PI",
+    "Name": "on.stage.prettysolution.com."
   }
 }

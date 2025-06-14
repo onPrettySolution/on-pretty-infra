@@ -5,6 +5,7 @@ import { ApiGatewayStack } from '../stacks/api-gateway/ApiGatewayStack';
 import { CloudFrontDistributionStack } from '../stacks/CloudFrontDistributionStack';
 import { CognitoStack } from '../stacks/core/CognitoStack';
 import { DynamoDBStack } from '../stacks/core/DynamoDBStack';
+import {MultiTenantDistributionStack} from "../stacks/core/MultiTenantDistributionStack";
 
 
 interface MyAppStageProps extends GitHubStageProps {
@@ -18,6 +19,7 @@ export class MyAppStage extends GitHubStage {
 
     const env = props.env;
     const cognito = new CognitoStack(this, 'CognitoStack', { env });
+    new MultiTenantDistributionStack(this, 'MultiTenantDistributionStack', { env });
     // const db = new DynamoDBStack(this, 'DynamoDBStack', {});
     // const api = new ApiGatewayStack(this, 'ApiGatewayStack', { env });
     // api.addDependency(db);
