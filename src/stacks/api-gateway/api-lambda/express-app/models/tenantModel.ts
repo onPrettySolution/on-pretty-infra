@@ -9,3 +9,8 @@ export interface Tenant {
   lastModified?: number;
   data: any
 }
+
+export interface TenantOwner {
+  cognitoUsername: string
+  tenantName: string
+}

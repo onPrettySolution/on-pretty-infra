@@ -1,6 +1,6 @@
 import {TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
 import {docClient} from '../config/dynamoDB';
-import {Tenant, tableName} from '../models/tenantModel';
+import {Tenant, tableName, TenantOwner} from '../models/tenantModel';
 
 /**
  * cursor is timestamp of last item
@@ -28,7 +28,7 @@ import {Tenant, tableName} from '../models/tenantModel';
 // }
 //
 export enum ENTITIES {
-    USER = 'USER',
+    TENANT_OWNER = 'TENANT_OWNER',
     TENANT = 'TENANT',
 }
 
@@ -37,6 +37,7 @@ class TenantService {
 
     async createTenant(data: { username: string, tenantName: string }): Promise<Tenant> {
 
+        // defining Tenant
         const tenant: Tenant = {
             tenantName: data.tenantName,
             data: {username: data.username}
@@ -50,7 +51,19 @@ class TenantService {
             data: tenant.data,
         };
 
-        const items = [rawTenantItem];
+        // defining tenantOwner
+        const tenantOwner: TenantOwner = {
+            cognitoUsername: data.username,
+            tenantName: data.tenantName
+        }
+        const rawTenantOwner = `${ENTITIES.TENANT_OWNER}#${tenantOwner.cognitoUsername}`
+        const rawTenantOwnerItem = {
+            pk: rawTenantOwner,
+            sk: rawTenant,
+            data: tenant.data,
+        };
+
+        const items = [rawTenantItem, rawTenantOwnerItem];
 
         try {
             const cmd = new TransactWriteCommand({

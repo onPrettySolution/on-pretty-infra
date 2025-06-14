@@ -8,8 +8,8 @@ export const createTenant = async (
 ): Promise<void> => {
     try {
         const username = req.requestContext.authorizer.jwt.claims.username;
+
         const tenantName = req.body.tenantName;
-        console.log('tenantName', tenantName)
         const data = await TenantService.createTenant({username, tenantName});
 
         res.json({msg: 'OK', data: data});
