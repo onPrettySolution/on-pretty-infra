@@ -8,7 +8,7 @@ import {StringParameter} from 'aws-cdk-lib/aws-ssm';
 import {Construct} from 'constructs';
 import {ThisEnvironment} from '../../interfaces';
 import {Bucket, HttpMethods} from "aws-cdk-lib/aws-s3";
-import {PolicyStatement, Role, ServicePrincipal} from "aws-cdk-lib/aws-iam";
+import {PolicyStatement, ServicePrincipal} from "aws-cdk-lib/aws-iam";
 import {IdentityPool, UserPoolAuthenticationProvider} from "aws-cdk-lib/aws-cognito-identitypool";
 
 
