@@ -11,7 +11,7 @@ interface Tables {
 }
 
 export const TABLES: Tables = {
-  BASE_TABLE_PARAMETER_NAME: '/core/DynamoDbStack/Tables/Base',
+  BASE_TABLE_PARAMETER_NAME: '/on-pretty-infra/core/DynamoDbStack/Tables/Base',
 };
 
 export class DynamoDBStack extends Stack {
@@ -27,11 +27,11 @@ export class DynamoDBStack extends Stack {
       maxReadRequestUnits: 1,
       maxWriteRequestUnits: 1,
     });
-    base.addGlobalSecondaryIndex({
-      indexName: 'gsi1pk-sk-index',
-      partitionKey: { name: 'gsi1pk', type: AttributeType.STRING },
-      sortKey: { name: 'sk', type: AttributeType.STRING },
-    });
+    // base.addGlobalSecondaryIndex({
+    //   indexName: 'gsi1pk-sk-index',
+    //   partitionKey: { name: 'gsi1pk', type: AttributeType.STRING },
+    //   sortKey: { name: 'sk', type: AttributeType.STRING },
+    // });
 
     new StringParameter(this, 'baseTable', {
       parameterName: TABLES.BASE_TABLE_PARAMETER_NAME,
