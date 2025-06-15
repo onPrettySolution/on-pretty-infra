@@ -1,5 +1,5 @@
 import {TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
-import {docClient, cognitoIdentityClient, cloudFrontClient} from '../config/sdkClients';
+import {docClient, cognitoIdentityClient, cloudFrontClient} from '../config/singletonClients';
 import {Tenant, tableName, TenantOwner} from '../models/tenantModel';
 import {
     CloudFrontClient,
