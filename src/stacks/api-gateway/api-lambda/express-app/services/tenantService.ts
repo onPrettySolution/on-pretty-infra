@@ -1,43 +1,11 @@
 import {TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
 import {docClient, cognitoIdentityClient, cloudFrontClient} from '../config/singletonClients';
 import {Tenant, tableName, TenantOwner} from '../models/tenantModel';
-import {
-    CloudFrontClient,
-    CreateDistributionTenantCommand,
-    CreateDistributionTenantCommandInput
-} from '@aws-sdk/client-cloudfront';
+import {CreateDistributionTenantCommand} from '@aws-sdk/client-cloudfront';
 import {multiTenant} from "../config/multiTenant";
-import {
-    CognitoIdentityClient,
-    GetIdCommand,
-} from "@aws-sdk/client-cognito-identity";
+import {GetIdCommand} from "@aws-sdk/client-cognito-identity";
 import {tryCatch} from "../utils/tryCatch";
 
-/**
- * cursor is timestamp of last item
- * last is the id of last item
- * **/
-// export interface LastEvaluatedKey {
-//   cursor?: string;
-//   last?: string;
-// }
-//
-// /**
-//  * IGetAllReports todo doc
-//  */
-// export interface IGetAllReports {
-//   driverId: string;
-//   limit: number;
-//   lastEvaluatedKey: LastEvaluatedKey;
-//   all: number;
-// }
-//
-// export enum REPORTS_GSI1 {
-//   REPORTS = 'REPORTS$',
-//   REPORTS_OF_DRIVER = 'REPORTS|DRIVER$',
-//   REPORTS_OF_VEHICLE = 'REPORTS|VEHICLE$',
-// }
-//
 export enum ENTITIES {
     TENANT_OWNER = 'TENANT_OWNER',
     TENANT = 'TENANT',
