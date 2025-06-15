@@ -65,7 +65,7 @@ class TenantService {
         const identityId = getIdCommandOutput.IdentityId
 
         // create CloudFront Distribution Tenant
-        const createDistributionTenantCommandInput: CreateDistributionTenantCommandInput = {
+        const createDistributionTenantCommand = new CreateDistributionTenantCommand({
             Name: data.tenantName,
             DistributionId: multiTenant.distributionId,
             Domains: [{Domain: `${data.tenantName}.${multiTenant.domainName}`}],
@@ -73,33 +73,32 @@ class TenantService {
                 {Name: 'tenantOwnerIdentityId', Value: identityId},
                 {Name: 'tenantName', Value: data.tenantName}
             ]
-        }
-        const res = await cloudFrontClient.send(new CreateDistributionTenantCommand(createDistributionTenantCommandInput))
-        const tenantData = {
+        })
+        const {
+            data: createDistributionTenantCommandOutput,
+            error: createDistributionTenantCommandError
+        } = await tryCatch(cloudFrontClient.send(createDistributionTenantCommand))
+        if (createDistributionTenantCommandError) throw new Error("Could not send CreateDistributionTenantCommand");
+        if (createDistributionTenantCommandOutput.DistributionTenant === undefined) throw new Error("DistributionTenant is undefined");
+
+        // Save tenant and owner in a single table designed DDB table
+        const tenantInfo = {
             tenantOwnerSub: data.claims.sub,
             tenantOwnerIdentityId: identityId,
-            DistributionId: res.DistributionTenant?.DistributionId,
-            Domains: res.DistributionTenant?.Domains,
-            Name: res.DistributionTenant?.Name,
+            DistributionId: createDistributionTenantCommandOutput.DistributionTenant.DistributionId,
+            Domains: createDistributionTenantCommandOutput.DistributionTenant.Domains,
+            Name: createDistributionTenantCommandOutput.DistributionTenant?.Name,
             distributionEndpoint: multiTenant.distributionEndpoint
         }
 
-
-        // defining Tenant
+        // defining tenant item
         const tenant: Tenant = {
             tenantName: data.tenantName,
-            data: tenantData
+            data: tenantInfo
         };
-
         const rawTenant = `${ENTITIES.TENANT}#${tenant.tenantName}`;
-
-        const rawTenantItem = {
-            pk: rawTenant,
-            sk: rawTenant,
-            data: tenant.data,
-        };
-
-        // defining tenantOwner
+        const rawTenantItem = {pk: rawTenant, sk: rawTenant, data: tenantInfo};
+        // defining tenantOwner item
         const tenantOwner: TenantOwner = {
             sub: data.claims.sub,
             identityId: identityId,
@@ -109,26 +108,21 @@ class TenantService {
         const rawTenantOwnerItem = {
             pk: rawTenantOwner,
             sk: rawTenant,
-            data: tenant.data,
+            data: tenantInfo
         };
 
+        // save tenant in DDB
         const items = [rawTenantItem, rawTenantOwnerItem];
+        const transactWriteCommand = new TransactWriteCommand({
+            TransactItems: items.map(item => ({
+                Put: {TableName: this.tableName, Item: item},
+            })),
+        });
+        const {error: transactWriteCommandError} = await tryCatch(docClient.send(transactWriteCommand))
+        if (transactWriteCommandError) throw new Error("Could not send TransactWriteCommand");
+        // console.log(JSON.stringify(tenant));
 
-        try {
-            const cmd = new TransactWriteCommand({
-                TransactItems: items.map(item => ({
-                    Put: {TableName: this.tableName, Item: item},
-                })),
-            });
-            await docClient.send(cmd);
-            console.log(JSON.stringify(tenant));
-
-            return tenant;
-
-        } catch (error) {
-            console.error('Error inserting report: ', error);
-            throw new Error('Failed to create report');
-        }
+        return tenant;
     }
 
 }
