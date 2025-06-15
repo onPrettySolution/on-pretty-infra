@@ -1,5 +1,5 @@
 import {TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
-import {docClient} from '../config/dynamoDB';
+import {docClient, cognitoIdentityClient} from '../config/sdkClients';
 import {Tenant, tableName, TenantOwner} from '../models/tenantModel';
 import {
     CloudFrontClient,
@@ -47,7 +47,6 @@ class TenantService {
     private readonly tableName: string | undefined = tableName;
 
     async createTenant(data: { claims: any, tenantName: string, idToken: string }): Promise<Tenant> {
-        const cognitoIdentityClient = new CognitoIdentityClient()
 
         const iss = data.claims.iss; // "https://accounts.google.com"
         const provider = iss.startsWith("https://") ? iss.slice(8) : iss;
