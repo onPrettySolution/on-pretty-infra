@@ -1,8 +1,8 @@
 import {TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
 import {docClient, cognitoIdentityClient, cloudFrontClient} from '../config/singletonClients';
-import {Tenant, tableName, TenantOwner} from '../models/tenantModel';
+import {Tenant, TenantOwner} from '../models/tenantModel';
 import {CreateDistributionTenantCommand} from '@aws-sdk/client-cloudfront';
-import {multiTenant} from "../config/multiTenant";
+import {getEnv} from "../config/getEnv";
 import {GetIdCommand} from "@aws-sdk/client-cognito-identity";
 import {tryCatch} from "../utils/tryCatch";
 
@@ -11,35 +11,49 @@ export enum ENTITIES {
     TENANT = 'TENANT',
 }
 
+interface CreateTenantInput {
+    claims: Record<string, string>;
+    tenantName: string;
+    idToken: string;
+}
+
 class TenantService {
-    private readonly tableName: string | undefined = tableName;
+    async createTenant(createTenantInput: CreateTenantInput): Promise<Tenant> {
+        const {
+            tableName,
+            domainName,
+            distributionId,
+            identityPoolId,
+            distributionEndpoint
+        } = getEnv;
 
-    async createTenant(data: { claims: any, tenantName: string, idToken: string }): Promise<Tenant> {
-
-        const iss = data.claims.iss; // "https://accounts.google.com"
+        // resolve provider from idToken
+        const iss = createTenantInput.claims.iss; // "https://accounts.google.com"
         const provider = iss.startsWith("https://") ? iss.slice(8) : iss;
 
         // exchange users' idToken for Cognito IdentityId
         const getIdCommand = new GetIdCommand({
-            IdentityPoolId: multiTenant.identityPoolId,
-            Logins: {[provider]: data.idToken},
+            IdentityPoolId: identityPoolId,
+            Logins: {[provider]: createTenantInput.idToken},
         });
         const {
             data: getIdCommandOutput,
             error: getIdCommandErr
         } = await tryCatch(cognitoIdentityClient.send(getIdCommand))
         if (getIdCommandErr) throw new Error("Could not send GetIdCommand");
-        if (getIdCommandOutput.IdentityId === undefined) throw new Error("IdentityId is undefined");
+        if (!getIdCommandOutput.IdentityId) throw new Error("IdentityId is undefined");
         const identityId = getIdCommandOutput.IdentityId
 
         // create CloudFront Distribution Tenant
         const createDistributionTenantCommand = new CreateDistributionTenantCommand({
-            Name: data.tenantName,
-            DistributionId: multiTenant.distributionId,
-            Domains: [{Domain: `${data.tenantName}.${multiTenant.domainName}`}],
+            Name: createTenantInput.tenantName,
+            DistributionId: distributionId,
+            Domains: [
+                {Domain: `${createTenantInput.tenantName}.${domainName}`}
+            ],
             Parameters: [
                 {Name: 'tenantOwnerIdentityId', Value: identityId},
-                {Name: 'tenantName', Value: data.tenantName}
+                {Name: 'tenantName', Value: createTenantInput.tenantName}
             ]
         })
         const {
@@ -47,30 +61,30 @@ class TenantService {
             error: createDistributionTenantCommandError
         } = await tryCatch(cloudFrontClient.send(createDistributionTenantCommand))
         if (createDistributionTenantCommandError) throw new Error("Could not send CreateDistributionTenantCommand");
-        if (createDistributionTenantCommandOutput.DistributionTenant === undefined) throw new Error("DistributionTenant is undefined");
+        if (!createDistributionTenantCommandOutput.DistributionTenant) throw new Error("DistributionTenant is undefined");
 
         // Save tenant and owner in a single table designed DDB table
         const tenantInfo = {
-            tenantOwnerSub: data.claims.sub,
+            tenantOwnerSub: createTenantInput.claims.sub,
             tenantOwnerIdentityId: identityId,
             DistributionId: createDistributionTenantCommandOutput.DistributionTenant.DistributionId,
             Domains: createDistributionTenantCommandOutput.DistributionTenant.Domains,
             Name: createDistributionTenantCommandOutput.DistributionTenant?.Name,
-            distributionEndpoint: multiTenant.distributionEndpoint
+            distributionEndpoint: distributionEndpoint
         }
 
         // defining tenant item
         const tenant: Tenant = {
-            tenantName: data.tenantName,
+            tenantName: createTenantInput.tenantName,
             data: tenantInfo
         };
         const rawTenant = `${ENTITIES.TENANT}#${tenant.tenantName}`;
         const rawTenantItem = {pk: rawTenant, sk: rawTenant, data: tenantInfo};
         // defining tenantOwner item
         const tenantOwner: TenantOwner = {
-            sub: data.claims.sub,
+            sub: createTenantInput.claims.sub,
             identityId: identityId,
-            tenantName: data.tenantName
+            tenantName: createTenantInput.tenantName
         }
         const rawTenantOwner = `${ENTITIES.TENANT_OWNER}#${tenantOwner.sub}`
         const rawTenantOwnerItem = {
@@ -80,15 +94,16 @@ class TenantService {
         };
 
         // save tenant in DDB
-        const items = [rawTenantItem, rawTenantOwnerItem];
+        const items = [
+            rawTenantItem, rawTenantOwnerItem
+        ];
         const transactWriteCommand = new TransactWriteCommand({
             TransactItems: items.map(item => ({
-                Put: {TableName: this.tableName, Item: item},
+                Put: {TableName: tableName, Item: item},
             })),
         });
         const {error: transactWriteCommandError} = await tryCatch(docClient.send(transactWriteCommand))
         if (transactWriteCommandError) throw new Error("Could not send TransactWriteCommand");
-        // console.log(JSON.stringify(tenant));
 
         return tenant;
     }
