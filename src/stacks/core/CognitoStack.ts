@@ -136,6 +136,10 @@ export class CognitoStack extends Stack {
             parameterName: '/on-pretty-infra/core/CognitoStack/userPoolClient01/userPoolClientId',
             stringValue: userPoolClient01.userPoolClientId,
         });
+        new StringParameter(this, 'identityPoolId', {
+            parameterName: '/on-pretty-infra/core/CognitoStack/identityPool/identityPoolId',
+            stringValue: identityPool.identityPoolId,
+        });
 
         new CfnOutput(this, 'authority', {value: userPool01.userPoolProviderUrl});
         new CfnOutput(this, 'client_id', {value: userPoolClient01.userPoolClientId});
