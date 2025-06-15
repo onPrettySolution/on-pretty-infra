@@ -7,6 +7,10 @@ import {
     CreateDistributionTenantCommandInput
 } from '@aws-sdk/client-cloudfront';
 import {multiTenant} from "../config/multiTenant";
+import {
+    CognitoIdentityClient,
+    GetIdCommand,
+} from "@aws-sdk/client-cognito-identity";
 
 /**
  * cursor is timestamp of last item
@@ -41,19 +45,34 @@ export enum ENTITIES {
 class TenantService {
     private readonly tableName: string | undefined = tableName;
 
-    async createTenant(data: { username: string, tenantName: string }): Promise<Tenant> {
+    async createTenant(data: { claims: any, tenantName: string, idToken: string }): Promise<Tenant> {
+
+
+        const cognitoIdentityClient = new CognitoIdentityClient()
+        const iss = data.claims.iss; // "https://accounts.google.com"
+        const provider = iss.startsWith("https://") ? iss.slice(8) : iss;
+        const command = new GetIdCommand({
+            IdentityPoolId: multiTenant.cognitoIdentityPoolId,
+            Logins: {
+                [provider]: data.idToken,
+            },
+        });
+        const {IdentityId} = await cognitoIdentityClient.send(command);
+        console.log(IdentityId)
+
 
         const cfClient = new CloudFrontClient();
         const cfTenantInput: CreateDistributionTenantCommandInput = {
             Name: data.tenantName,
             DistributionId: multiTenant.distributionId,
             Domains: [{Domain: `${data.tenantName}.${multiTenant.domainName}`}],
-            Parameters: [{Name: 'tenant-owner', Value: data.username}, {Name: 'tenant-name', Value: data.tenantName}]
+            Parameters: [{Name: 'tenantOwnerIdentityId', Value: IdentityId}, {Name: 'tenantName', Value: data.tenantName}]
         }
 
         const res = await cfClient.send(new CreateDistributionTenantCommand(cfTenantInput))
         const tenantData = {
-            tenantOwner: data.username,
+            tenantOwnerSub: data.claims.sub,
+            tenantOwnerIdentityId: IdentityId,
             DistributionId: res.DistributionTenant?.DistributionId,
             Domains: res.DistributionTenant?.Domains,
             Name: res.DistributionTenant?.Name,
@@ -77,10 +96,11 @@ class TenantService {
 
         // defining tenantOwner
         const tenantOwner: TenantOwner = {
-            cognitoUsername: data.username,
+            sub: data.claims.sub,
+            identityId: IdentityId!,
             tenantName: data.tenantName
         }
-        const rawTenantOwner = `${ENTITIES.TENANT_OWNER}#${tenantOwner.cognitoUsername}`
+        const rawTenantOwner = `${ENTITIES.TENANT_OWNER}#${tenantOwner.sub}`
         const rawTenantOwnerItem = {
             pk: rawTenantOwner,
             sk: rawTenant,

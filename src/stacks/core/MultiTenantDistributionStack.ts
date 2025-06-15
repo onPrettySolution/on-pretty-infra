@@ -25,7 +25,7 @@ export class MultiTenantDistributionStack extends Stack {
             subjectAlternativeNames: [`*.${hostedZone.zoneName}`],
         });
 
-        const onPrettyMTBucket = new Bucket(this, 'OnPrettyMTBucket')
+        // const onPrettyMTBucket = new Bucket(this, 'OnPrettyMTBucket')
 
 
     }

@@ -12,8 +12,9 @@
 3. `export MULTI_TENANT_DOMAIN_NAME=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/domainName" --query "Parameter.Value" --output text)`
 4. `export MULTI_TENANT_DISTRIBUTION_ID=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/DistributionId" --query "Parameter.Value" --output text)`
 5. `export MULTI_TENANT_DISTRIBUTION_ENDPOINT=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/distributionEndpoint" --query "Parameter.Value" --output text)`
-6. `npx projen express:run`
-7. [test your api](src/stacks/api-gateway/api-lambda/debug/report-api.http)
+6. `export IDENTITY_POOL_ID=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/cognitoIdentityPoolId" --query "Parameter.Value" --output text)`
+7. `npx projen express:run`
+8. [test your api](src/stacks/api-gateway/api-lambda/debug/report-api.http)
 
 #### deploy cloudfront
 1. `export VITE_COGNITO_AUTHORITY=$(aws ssm get-parameter --name "/core/CognitoStack/userPool01/userPoolProviderUrl" --query "Parameter.Value" --output text)`
@@ -23,14 +24,14 @@
 #### Examples
 ```shell
 aws cognito-idp admin-initiate-auth \
-  --user-pool-id us-east-1_JKLmC0DZe \
-  --client-id 6lmvsi2sncou70huiqt893hndq \
+  --user-pool-id us-east-1_h2ixgDZEz \
+  --client-id 6j4nc3kkioj2pvln7r7o8un6nf \
   --auth-flow ADMIN_NO_SRP_AUTH \
   --auth-parameters USERNAME=user10,PASSWORD=user10 | cat
 ```
 ```shell
 aws cognito-idp admin-set-user-password \
-  --user-pool-id us-east-1_JKLmC0DZe \
+  --user-pool-id us-east-1_h2ixgDZEz \
   --username user10 \
   --password user10 \
   --permanent | cat

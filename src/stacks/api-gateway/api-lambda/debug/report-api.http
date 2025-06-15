@@ -23,9 +23,9 @@ Authorization: Bearer token
 {"type":"custom"}
 
 ### debug put
-PUT {{host}}/api/reports/debug?hello=world
+PUT {{host}}/api/tenants/debug?hello=world
 Content-Type: application/json
-Authorization: Bearer token
+Authorization: Bearer {{token}}
 
 {"type":"default"}
 

@@ -11,6 +11,7 @@ export interface Tenant {
 }
 
 export interface TenantOwner {
-  cognitoUsername: string
+  sub: string
+  identityId: string
   tenantName: string
 }

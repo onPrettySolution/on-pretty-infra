@@ -29,7 +29,8 @@ const project = new awscdk.AwsCdkTypeScriptApp({
         '@aws-sdk/util-dynamodb',
         'express',
         'serverless-http',
-        '@aws-sdk/client-cloudfront'
+        '@aws-sdk/client-cloudfront',
+        '@aws-sdk/client-cognito-identity'
     ],
     devDeps: ['cdk-dia', '@types/express'],
 

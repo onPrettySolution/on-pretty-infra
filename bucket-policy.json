@@ -2,6 +2,11 @@
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Condition": {
+        "StringEquals": {
+          "s3:prefix": "${cognito-identity.amazonaws.com:sub}/"
+        }
+      },
       "Action": [
         "s3:GetObject*",
         "s3:GetBucket*",
@@ -14,10 +19,7 @@
         "s3:PutObjectVersionTagging",
         "s3:Abort*"
       ],
-      "Resource": [
-        "arn:aws:s3:::on-pretty-stage-cognitost-onprettymtuploadbucketf7-w3avrcs5u6tq",
-        "arn:aws:s3:::on-pretty-stage-cognitost-onprettymtuploadbucketf7-w3avrcs5u6tq/*"
-      ],
+      "Resource": "arn:aws:s3:::on-pretty-stage-cognitost-onprettymtuploadbucketf7-w3avrcs5u6tq/${cognito-identity.amazonaws.com:sub}/*",
       "Effect": "Allow"
     }
   ]
