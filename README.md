@@ -10,7 +10,7 @@
 1. follow steps from [Set up DEV in your account](#set-up-dev-in-your-account)
 2. `export BASE_TABLE_NAME=$(aws ssm get-parameter --name "/on-pretty-infra/core/DynamoDbStack/Tables/Base" --query "Parameter.Value" --output text)`
 3. `export MULTI_TENANT_DOMAIN_NAME=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/domainName" --query "Parameter.Value" --output text)`
-4. `export MULTI_TENANT_DISTRIBUTION_ID=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/DistributionId" --query "Parameter.Value" --output text)`
+4. `export MULTI_TENANT_DISTRIBUTION_ID=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/distributionId" --query "Parameter.Value" --output text)`
 5. `export MULTI_TENANT_DISTRIBUTION_ENDPOINT=$(aws ssm get-parameter --name "/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/distributionEndpoint" --query "Parameter.Value" --output text)`
 6. `export IDENTITY_POOL_ID=$(aws ssm get-parameter --name "/on-pretty-infra/core/CognitoStack/identityPool/identityPoolId" --query "Parameter.Value" --output text)`
 7. `npx projen express:run`

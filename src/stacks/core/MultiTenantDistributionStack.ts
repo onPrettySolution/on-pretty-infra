@@ -5,6 +5,7 @@ import {HostedZone} from "aws-cdk-lib/aws-route53";
 import {Certificate, CertificateValidation} from "aws-cdk-lib/aws-certificatemanager";
 import {Distribution, CfnDistribution} from "aws-cdk-lib/aws-cloudfront";
 import {Bucket} from "aws-cdk-lib/aws-s3";
+import {StringParameter} from "aws-cdk-lib/aws-ssm";
 
 
 interface MultiTenantDistributionStackProps extends StackProps {
@@ -25,8 +26,17 @@ export class MultiTenantDistributionStack extends Stack {
             subjectAlternativeNames: [`*.${hostedZone.zoneName}`],
         });
 
-        // const onPrettyMTBucket = new Bucket(this, 'OnPrettyMTBucket')
-
-
+        new StringParameter(this, 'DomainName', {
+            parameterName: '/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/domainName',
+            stringValue: props.env.multiTenant.domainName,
+        });
+        new StringParameter(this, 'DistributionId', {
+            parameterName: '/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/distributionId',
+            stringValue: props.env.multiTenant.distributionId,
+        });
+        new StringParameter(this, 'DistributionEndpoint', {
+            parameterName: '/on-pretty-infra/core/MultiTenantDistributionStack/OnDistribution/distributionEndpoint',
+            stringValue: props.env.multiTenant.distributionEndpoint,
+        });
     }
 }
