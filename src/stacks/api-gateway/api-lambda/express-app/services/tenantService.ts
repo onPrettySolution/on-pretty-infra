@@ -11,6 +11,7 @@ import {
     CognitoIdentityClient,
     GetIdCommand,
 } from "@aws-sdk/client-cognito-identity";
+import {tryCatch} from "../utils/tryCatch";
 
 /**
  * cursor is timestamp of last item
@@ -46,34 +47,39 @@ class TenantService {
     private readonly tableName: string | undefined = tableName;
 
     async createTenant(data: { claims: any, tenantName: string, idToken: string }): Promise<Tenant> {
-
-
         const cognitoIdentityClient = new CognitoIdentityClient()
+
         const iss = data.claims.iss; // "https://accounts.google.com"
         const provider = iss.startsWith("https://") ? iss.slice(8) : iss;
-        const command = new GetIdCommand({
-            IdentityPoolId: multiTenant.identityPoolId,
-            Logins: {
-                [provider]: data.idToken,
-            },
-        });
-        const {IdentityId} = await cognitoIdentityClient.send(command);
-        console.log('IdentityId', IdentityId)
 
-        const cfClient = new CloudFrontClient();
-        const cfTenantInput: CreateDistributionTenantCommandInput = {
+        // exchange users' idToken for Cognito IdentityId
+        const getIdCommand = new GetIdCommand({
+            IdentityPoolId: multiTenant.identityPoolId,
+            Logins: {[provider]: data.idToken},
+        });
+        const {
+            data: getIdCommandOutput,
+            error: getIdCommandErr
+        } = await tryCatch(cognitoIdentityClient.send(getIdCommand))
+        if (getIdCommandErr) throw new Error("Could not send GetIdCommand");
+        if (getIdCommandOutput.IdentityId === undefined) throw new Error("IdentityId is undefined");
+        const identityId = getIdCommandOutput.IdentityId
+
+        // create CloudFront Distribution Tenant
+        const cloudFrontClient = new CloudFrontClient();
+        const createDistributionTenantCommandInput: CreateDistributionTenantCommandInput = {
             Name: data.tenantName,
             DistributionId: multiTenant.distributionId,
             Domains: [{Domain: `${data.tenantName}.${multiTenant.domainName}`}],
-            Parameters: [{Name: 'tenantOwnerIdentityId', Value: IdentityId}, {Name: 'tenantName', Value: data.tenantName}]
+            Parameters: [
+                {Name: 'tenantOwnerIdentityId', Value: identityId},
+                {Name: 'tenantName', Value: data.tenantName}
+            ]
         }
-        console.log('distributionId', multiTenant.distributionId)
-        console.log('domainName', multiTenant.domainName)
-
-        const res = await cfClient.send(new CreateDistributionTenantCommand(cfTenantInput))
+        const res = await cloudFrontClient.send(new CreateDistributionTenantCommand(createDistributionTenantCommandInput))
         const tenantData = {
             tenantOwnerSub: data.claims.sub,
-            tenantOwnerIdentityId: IdentityId,
+            tenantOwnerIdentityId: identityId,
             DistributionId: res.DistributionTenant?.DistributionId,
             Domains: res.DistributionTenant?.Domains,
             Name: res.DistributionTenant?.Name,
@@ -98,7 +104,7 @@ class TenantService {
         // defining tenantOwner
         const tenantOwner: TenantOwner = {
             sub: data.claims.sub,
-            identityId: IdentityId!,
+            identityId: identityId,
             tenantName: data.tenantName
         }
         const rawTenantOwner = `${ENTITIES.TENANT_OWNER}#${tenantOwner.sub}`
