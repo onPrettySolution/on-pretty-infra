@@ -1,5 +1,5 @@
 import {TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
-import {docClient, cognitoIdentityClient} from '../config/sdkClients';
+import {docClient, cognitoIdentityClient, cloudFrontClient} from '../config/sdkClients';
 import {Tenant, tableName, TenantOwner} from '../models/tenantModel';
 import {
     CloudFrontClient,
@@ -65,7 +65,6 @@ class TenantService {
         const identityId = getIdCommandOutput.IdentityId
 
         // create CloudFront Distribution Tenant
-        const cloudFrontClient = new CloudFrontClient();
         const createDistributionTenantCommandInput: CreateDistributionTenantCommandInput = {
             Name: data.tenantName,
             DistributionId: multiTenant.distributionId,
