@@ -52,14 +52,13 @@ class TenantService {
         const iss = data.claims.iss; // "https://accounts.google.com"
         const provider = iss.startsWith("https://") ? iss.slice(8) : iss;
         const command = new GetIdCommand({
-            IdentityPoolId: multiTenant.cognitoIdentityPoolId,
+            IdentityPoolId: multiTenant.identityPoolId,
             Logins: {
                 [provider]: data.idToken,
             },
         });
         const {IdentityId} = await cognitoIdentityClient.send(command);
-        console.log(IdentityId)
-
+        console.log('IdentityId', IdentityId)
 
         const cfClient = new CloudFrontClient();
         const cfTenantInput: CreateDistributionTenantCommandInput = {
@@ -68,6 +67,8 @@ class TenantService {
             Domains: [{Domain: `${data.tenantName}.${multiTenant.domainName}`}],
             Parameters: [{Name: 'tenantOwnerIdentityId', Value: IdentityId}, {Name: 'tenantName', Value: data.tenantName}]
         }
+        console.log('distributionId', multiTenant.distributionId)
+        console.log('domainName', multiTenant.domainName)
 
         const res = await cfClient.send(new CreateDistributionTenantCommand(cfTenantInput))
         const tenantData = {
