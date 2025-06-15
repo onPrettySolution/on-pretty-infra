@@ -1,8 +1,8 @@
 import {TransactWriteCommand} from '@aws-sdk/lib-dynamodb';
-import {docClient, cognitoIdentityClient, cloudFrontClient} from '../config/singletonClients';
+import {docClient, cognitoIdentityClient, cloudFrontClient} from '../utils/singletonClients';
 import {Tenant, TenantOwner} from '../models/tenantModel';
 import {CreateDistributionTenantCommand} from '@aws-sdk/client-cloudfront';
-import {getEnv} from "../config/getEnv";
+import {getEnv} from "../utils/getEnv";
 import {GetIdCommand} from "@aws-sdk/client-cognito-identity";
 import {tryCatch} from "../utils/tryCatch";
 
@@ -40,7 +40,7 @@ class TenantService {
             data: getIdCommandOutput,
             error: getIdCommandErr
         } = await tryCatch(cognitoIdentityClient.send(getIdCommand))
-        if (getIdCommandErr) throw new Error("Could not send GetIdCommand");
+        if (getIdCommandErr) throw new Error(`getIdCommandErr: ${getIdCommandErr.message}`);
         if (!getIdCommandOutput.IdentityId) throw new Error("IdentityId is undefined");
         const identityId = getIdCommandOutput.IdentityId
 
@@ -60,7 +60,7 @@ class TenantService {
             data: createDistributionTenantCommandOutput,
             error: createDistributionTenantCommandError
         } = await tryCatch(cloudFrontClient.send(createDistributionTenantCommand))
-        if (createDistributionTenantCommandError) throw new Error("Could not send CreateDistributionTenantCommand");
+        if (createDistributionTenantCommandError) throw new Error(`createDistributionTenantCommandError: ${createDistributionTenantCommandError.message}`);
         if (!createDistributionTenantCommandOutput.DistributionTenant) throw new Error("DistributionTenant is undefined");
 
         // Save tenant and owner in a single table designed DDB table
@@ -103,7 +103,7 @@ class TenantService {
             })),
         });
         const {error: transactWriteCommandError} = await tryCatch(docClient.send(transactWriteCommand))
-        if (transactWriteCommandError) throw new Error("Could not send TransactWriteCommand");
+        if (transactWriteCommandError) throw new Error(`transactWriteCommandError: ${transactWriteCommandError.message}`);
 
         return tenant;
     }
