@@ -13,9 +13,7 @@ interface CreateDistributionTenantInput {
     distributionId: string;
 }
 
-export const createDistributionTenant = async (
-    input: CreateDistributionTenantInput
-) => {
+export const createDistributionTenant = async (input: CreateDistributionTenantInput) => {
 
     const command = new CreateDistributionTenantCommand({
         Name: input.tenantName,

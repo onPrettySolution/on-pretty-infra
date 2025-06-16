@@ -17,7 +17,11 @@ export const createTenantService = async (input: CreateTenantInput) => {
     const {idToken, claims, tenantName} = input;
     const {tableName, domainName, distributionId, identityPoolId, distributionEndpoint} = getEnv;
 
-    const identityId = await getIdentityId(idToken, claims, identityPoolId);
+    const identityId = await getIdentityId({
+        idToken,
+        claims,
+        identityPoolId
+    });
 
     const dist = await createDistributionTenant({
         tenantName,
@@ -26,14 +30,14 @@ export const createTenantService = async (input: CreateTenantInput) => {
         distributionId
     });
 
-    return await saveTenantToDb(
+    return await saveTenantToDb({
         tenantName,
-        claims.sub,
+        sub: claims.sub,
         identityId,
-        dist.distributionId,
-        dist.domains,
+        distributionId: dist.distributionId,
+        domains: dist.domains,
         distributionEndpoint,
         tableName
-    );
+    });
 };
 

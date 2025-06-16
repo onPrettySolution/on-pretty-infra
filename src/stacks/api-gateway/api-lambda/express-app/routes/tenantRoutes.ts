@@ -7,7 +7,7 @@ const router = express.Router();
 router
     .route('/')
     .post(createTenantController)
-    // .get(getAllReports);
+    // .get(getAllTenantsController);
 
 // Routes for report operations (get, update, delete)
 // router

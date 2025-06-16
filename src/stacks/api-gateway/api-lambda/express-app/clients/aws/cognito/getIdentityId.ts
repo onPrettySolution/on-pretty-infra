@@ -3,21 +3,25 @@ import {GetIdCommand} from "@aws-sdk/client-cognito-identity";
 import {cognitoIdentityClient} from "../client";
 import {tryCatch} from "../../../utils/tryCatch";
 
-export const getIdentityId = async (
+interface getIdentityIdInput {
+    // JWT id token with aud and iss
     idToken: string,
+    // iss, aud, etc
     claims: Record<string, string>,
+    // Cognito Identity Pool ID, ex: us-east-1:2037428b-e67b-4fa9-b157-01eb505359f0
     identityPoolId: string
-): Promise<string> => {
+}
 
-    const iss = claims.iss
-    const aud = claims.aud
+export const getIdentityId = async (input: getIdentityIdInput): Promise<string> => {
+    const iss = input.claims.iss
+    const aud = input.claims.aud
     if (!iss || !aud) throw new Error("Make sure Authorization header contains IdToken with iss and aud");
 
     const provider = iss.startsWith("https://") ? iss.slice(8) : iss;
 
     const command = new GetIdCommand({
-        IdentityPoolId: identityPoolId,
-        Logins: {[provider]: idToken},
+        IdentityPoolId: input.identityPoolId,
+        Logins: {[provider]: input.idToken},
     });
 
     const {data, error} = await tryCatch(cognitoIdentityClient.send(command));
