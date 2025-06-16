@@ -1,9 +1,9 @@
 import {Request, Response} from 'express';
-import TenantService from '../services/tenantService';
+import {createTenantService} from '../services'
 import {tryCatch} from "../utils/tryCatch";
 
 
-export const createTenant = async (
+export const createTenantController = async (
     req: Request,
     res: Response,
 ): Promise<void> => {
@@ -15,11 +15,11 @@ export const createTenant = async (
     const {
         data: newTenant,
         error: errorCreatingNewTenant
-    } = await tryCatch(TenantService.createTenant({claims, tenantName, idToken}))
+    } = await tryCatch(createTenantService({claims, tenantName, idToken}))
 
     if (errorCreatingNewTenant) {
-        console.error('TenantService.createTenant:', errorCreatingNewTenant);
-        res.status(500).json({msg: 'ERR', data: `TenantService.createTenant: ${errorCreatingNewTenant.message}`});
+        console.error('createTenantService:', errorCreatingNewTenant);
+        res.status(500).json({msg: 'ERR', data: `createTenantService: ${errorCreatingNewTenant.message}`});
         return // need to return as lambda logs "Cannot set headers after they are sent to the client"
     }
     res.json({msg: 'OK', data: newTenant});

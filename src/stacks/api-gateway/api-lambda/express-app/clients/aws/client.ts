@@ -1,3 +1,4 @@
+// Initializes AWS SDK clients
 import {DynamoDBClient} from '@aws-sdk/client-dynamodb';
 import {DynamoDBDocumentClient} from '@aws-sdk/lib-dynamodb';
 import {CognitoIdentityClient} from "@aws-sdk/client-cognito-identity";
@@ -21,7 +22,6 @@ const getCloudFrontClient = (): CloudFrontClient => {
     return _cloudFrontClient ??= new CloudFrontClient();
 }
 
-// export
 export const docClient = getDocClient();
 export const cognitoIdentityClient = getCognitoIdentityClient()
 export const cloudFrontClient = getCloudFrontClient()

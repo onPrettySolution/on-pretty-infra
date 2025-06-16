@@ -1,12 +1,12 @@
 import express from 'express';
-import {createTenant} from '../controllers/tenantController';
+import {createTenantController} from '../controllers';
 
 const router = express.Router();
 
 // Routes for creating and fetching reports
 router
     .route('/')
-    .post(createTenant)
+    .post(createTenantController)
     // .get(getAllReports);
 
 // Routes for report operations (get, update, delete)
