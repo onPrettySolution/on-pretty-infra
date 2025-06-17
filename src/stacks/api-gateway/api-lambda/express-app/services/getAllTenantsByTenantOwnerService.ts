@@ -4,14 +4,15 @@ import {getAllTenantsByTenantOwnerFromDb} from "../clients/aws/dynamoDb/getAllTe
 interface getAllTenantsByTenantOwnerInput {
     // sub is the tenant owner in DynamoDb table
     sub: string;
+    lastEvaluatedKey?: string
 }
 
 export const getAllTenantsByTenantOwnerService = async (input: getAllTenantsByTenantOwnerInput) => {
-    const {sub} = input;
+    const {sub, lastEvaluatedKey} = input;
     const {tableName} = getEnv;
 
     return await getAllTenantsByTenantOwnerFromDb({
-        sub,
+        sub, lastEvaluatedKey,
         tableName
     })
 };

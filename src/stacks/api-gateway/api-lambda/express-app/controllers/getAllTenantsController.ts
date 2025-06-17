@@ -5,7 +5,9 @@ import {getAllTenantsByTenantOwnerService} from "../services/getAllTenantsByTena
 
 export const getAllTenantsController = async (req: Request, res: Response): Promise<void> => {
     const claims = req.requestContext.authorizer.jwt.claims;
-    const {data, error} = await tryCatch(getAllTenantsByTenantOwnerService({sub: claims.sub}))
+    const lastEvaluatedKey = req.query.last as string;
+
+    const {data, error} = await tryCatch(getAllTenantsByTenantOwnerService({sub: claims.sub, lastEvaluatedKey}))
 
     if (error) {
         console.error('getAllTenantsByTenantOwnerService:', error);

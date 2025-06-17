@@ -8,14 +8,24 @@ interface GetAllTenantsInput {
     sub: string,
     // on-pretty-stage-DynamoDBStack-Base93336DB5-P53XFU00N1TB
     tableName: string
+    lastEvaluatedKey?: string
 }
 
 export const getAllTenantsByTenantOwnerFromDb = async (input: GetAllTenantsInput) => {
-    const sub = input.sub
+    const {sub, lastEvaluatedKey, tableName} = input
     if (!sub) throw new Error("Make sure Authorization header contains a Token with sub");
+
+    let exclusiveStartKey
     const rawTenantOwner = `${TENANT_ENTITIES.TENANT_OWNER}#${sub}`;
+    if (lastEvaluatedKey) {
+        exclusiveStartKey = {
+            pk: rawTenantOwner,
+            sk: `${TENANT_ENTITIES.TENANT}#${lastEvaluatedKey}`
+            // sk: lastEvaluatedKey
+        }
+    }
     const command = new QueryCommand({
-        TableName: input.tableName, // replace with your table name
+        TableName: tableName, // replace with your table name
         KeyConditionExpression: "#pk = :pkVal",
         ExpressionAttributeNames: {
             "#pk": "pk",
@@ -23,6 +33,8 @@ export const getAllTenantsByTenantOwnerFromDb = async (input: GetAllTenantsInput
         ExpressionAttributeValues: {
             ":pkVal": rawTenantOwner,
         },
+        Limit: 2,
+        ExclusiveStartKey: exclusiveStartKey
     });
     const {data, error} = await tryCatch(docClient.send(command));
     if (error) throw new Error(`transactWriteCommandError: ${error.message}`);
