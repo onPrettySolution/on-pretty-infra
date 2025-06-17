@@ -31,3 +31,8 @@ export interface TenantOwner {
     // ex: tenant01 in tenant01.on.prettysolution.com
     tenantName: string
 }
+
+export enum TENANT_ENTITIES {
+    TENANT_OWNER = 'TENANT_OWNER',
+    TENANT = 'TENANT',
+}

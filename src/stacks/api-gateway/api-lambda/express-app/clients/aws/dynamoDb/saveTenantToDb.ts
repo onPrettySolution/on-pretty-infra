@@ -1,7 +1,7 @@
 import {TransactWriteCommand} from "@aws-sdk/lib-dynamodb";
 import {tryCatch} from "../../../utils/tryCatch";
 import {docClient} from "../client";
-import {Tenant} from "../../../models/tenantModel";
+import {Tenant, TENANT_ENTITIES} from "../../../models/tenantModel";
 
 interface saveTenantToDbInput {
     // ex: tenant01
@@ -35,8 +35,8 @@ export const saveTenantToDb = async (input: saveTenantToDbInput): Promise<Tenant
         data: tenantInfo
     };
 
-    const rawTenant = `TENANT#${input.tenantName}`;
-    const rawTenantOwner = `TENANT_OWNER#${input.sub}`;
+    const rawTenant = `${TENANT_ENTITIES.TENANT}#${input.tenantName}`;
+    const rawTenantOwner = `${TENANT_ENTITIES.TENANT_OWNER}#${input.sub}`;
 
     const items = [
         {pk: rawTenant, sk: rawTenant, data: tenantInfo},

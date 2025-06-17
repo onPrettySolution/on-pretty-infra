@@ -1,1 +1,2 @@
-export * from './tenantController'
+export * from './getAllTenantsController'
+export * from './createTenantController'

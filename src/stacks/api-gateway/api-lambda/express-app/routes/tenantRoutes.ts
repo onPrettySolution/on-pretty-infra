@@ -1,5 +1,5 @@
 import express from 'express';
-import {createTenantController} from '../controllers';
+import {createTenantController, getAllTenantsController} from '../controllers';
 
 const router = express.Router();
 
@@ -7,7 +7,7 @@ const router = express.Router();
 router
     .route('/')
     .post(createTenantController)
-    // .get(getAllTenantsController);
+    .get(getAllTenantsController);
 
 // Routes for report operations (get, update, delete)
 // router

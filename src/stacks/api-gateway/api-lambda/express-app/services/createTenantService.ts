@@ -2,11 +2,6 @@ import {getEnv} from "../utils/getEnv";
 import {createDistributionTenant, getIdentityId} from "../clients/aws";
 import {saveTenantToDb} from "../clients/aws/dynamoDb";
 
-export enum ENTITIES {
-    TENANT_OWNER = 'TENANT_OWNER',
-    TENANT = 'TENANT',
-}
-
 interface CreateTenantInput {
     claims: Record<string, string>;
     tenantName: string;
