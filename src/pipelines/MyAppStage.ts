@@ -22,8 +22,8 @@ export class MyAppStage extends GitHubStage {
     new MultiTenantDistributionStack(this, 'MultiTenantDistributionStack', { env });
     const db = new DynamoDBStack(this, 'DynamoDBStack', {});
     const api = new ApiGatewayStack(this, 'ApiGatewayStack', { env });
-    // api.addDependency(db);
-    // new CloudFrontDistributionStack(this, 'CloudFrontDistribution', { env, versions: props.versions, api: api.api });
+    api.addDependency(db);
+    new CloudFrontDistributionStack(this, 'CloudFrontDistribution', { env, versions: props.versions, api: api.api });
 
   }
 
