@@ -25,5 +25,12 @@ export const getTenantFromDb = async (input: GetTenantFromDbInput) => {
     });
     const {data, error} = await tryCatch(docClient.send(command));
     if (error) throw new Error(`getCommandError: ${error.message}`);
+    if (!data.Item) {
+        throw new Error(`getCommandError: item not found`);
+    }
+    if (data.Item.data.tenantOwnerSub !== sub) {
+        throw new Error(`getCommandError: item not found!`);
+    }
     return data
+
 }
