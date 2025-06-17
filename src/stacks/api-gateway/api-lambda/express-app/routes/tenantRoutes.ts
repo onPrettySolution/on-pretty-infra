@@ -1,20 +1,20 @@
 import express from 'express';
-import {createTenantController, getAllTenantsController} from '../controllers';
+import {createTenantController, getAllTenantsController, getTenantController} from '../controllers';
 
 const router = express.Router();
 
-// Routes for creating and fetching reports
+// Routes for creating and fetching tenants
 router
     .route('/')
     .post(createTenantController)
     .get(getAllTenantsController);
 
 // Routes for report operations (get, update, delete)
-// router
-//     .route('/:timestamp')
-//     .get(getReport) // Fetch a report
-//     .put(updateReport) // Update a report
-//     .delete(deleteReport); // Delete a report
+router
+    .route('/:tenant')
+    .get(getTenantController) // Fetch a tenant
+    // .put(updateReport) // Update a report
+    // .delete(deleteReport); // Delete a report
 
 // // Middleware to validate the timestamp parameter
 // router.param('timestamp', (_req, _res, next, timestamp: string) => {
