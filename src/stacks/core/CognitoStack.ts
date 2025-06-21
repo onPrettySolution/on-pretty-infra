@@ -20,14 +20,6 @@ export class CognitoStack extends Stack {
     constructor(scope: Construct, id: string, props: CognitoStackProps) {
         super(scope, id, props);
 
-        const hostedZone = HostedZone.fromLookup(this, 'HostedZone', {domainName: props.env.domainName});
-
-        const certificate = new Certificate(this, 'Certificate', {
-            validation: CertificateValidation.fromDns(hostedZone),
-            domainName: hostedZone.zoneName,
-            subjectAlternativeNames: [`*.${props.env.domainName}`],
-        });
-
         const preSignUpLambda01 = new Function(this, 'preSignUpLambda01', {
             runtime: Runtime.PYTHON_3_13,
             handler: 'index.lambda_handler',
@@ -61,27 +53,6 @@ export class CognitoStack extends Stack {
             authFlows: {adminUserPassword: true, userSrp: true},
             oAuth: {callbackUrls: [`https://${props.env.subDomain}.${props.env.domainName}/`, 'http://localhost:5173/']},
         });
-
-        // we don't need custom domain
-        // const userPoolDomain01 = userPool01.addDomain('login01', {
-        //     customDomain: {
-        //         // Custom domain is not a valid subdomain: Was not able to resolve a DNS A record for the parent domain or domain parent is a top-level domain.
-        //         // domainName: `${props.env.loginSubDomain}-01.${props.env.subDomain}.${props.env.domainName}`,
-        //         domainName: `${props.env.loginSubDomain}-01-${props.env.subDomain}.${props.env.domainName}`,
-        //         certificate,
-        //     },
-        //     managedLoginVersion: ManagedLoginVersion.NEWER_MANAGED_LOGIN,
-        // });
-        // new CfnManagedLoginBranding(this, 'cfnManagedLoginBranding01', {
-        //     clientId: userPoolClient01.userPoolClientId,
-        //     userPoolId: userPool01.userPoolId,
-        //     useCognitoProvidedValues: true,
-        // });
-        // new ARecord(this, 'ARecord01', {
-        //     recordName: `${props.env.loginSubDomain}-01-${props.env.subDomain}`,
-        //     zone: hostedZone,
-        //     target: RecordTarget.fromAlias(new UserPoolDomainTarget(userPoolDomain01)),
-        // });
 
         // Create on pretty multi tenancy upload bucket
         const onPrettyMTUploadBucket = new Bucket(this, 'OnPrettyMTUploadBucket', {
