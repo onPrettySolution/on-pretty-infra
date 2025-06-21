@@ -94,6 +94,8 @@ export class DynamoDBStack extends Stack {
 
         // grants:
         newTenantInsertedInDdbTopic.grantPublish(newTenantInsertedLambda)
+        props.onPrettyMTUploadBucket.grantWrite(toPutDefaultIndexHtmlInS3Lambda)
+
         new StringParameter(this, 'baseTable', {
             parameterName: TABLES.BASE_TABLE_PARAMETER_NAME,
             stringValue: base.tableName,
