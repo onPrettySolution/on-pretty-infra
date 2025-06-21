@@ -14,7 +14,9 @@ interface CognitoStackProps extends StackProps {
 }
 
 export class CognitoStack extends Stack {
-    private readonly onPrettyMTUploadBucket: Bucket
+
+    public readonly onPrettyMTUploadBucket: Bucket
+
     constructor(scope: Construct, id: string, props: CognitoStackProps) {
         super(scope, id, props);
 
