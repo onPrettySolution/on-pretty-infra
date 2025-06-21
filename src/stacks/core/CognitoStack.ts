@@ -33,6 +33,7 @@ export class CognitoStack extends Stack {
             runtime: Runtime.PYTHON_3_13,
             handler: 'index.lambda_handler',
             code: Code.fromInline('def lambda_handler(event, context): event["response"]["autoConfirmUser"] = True; return event'),
+            deadLetterQueueEnabled: true
         });
 
         const userPool01 = new UserPool(this, 'userPool01', {
