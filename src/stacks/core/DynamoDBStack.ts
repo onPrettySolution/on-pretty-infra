@@ -77,7 +77,7 @@ export class DynamoDBStack extends Stack {
         const toPutDefaultIndexHtmlInS3Queue = new Queue(this, 'toPutDefaultIndexHtmlInS3Queue', {
             deadLetterQueue: {
                 queue: new Queue(this, 'DlqToPutDefaultIndexHtmlInS3Queue', {retentionPeriod: Duration.days(14)}),
-                maxReceiveCount: 3
+                maxReceiveCount: 2
             }
         })
         newTenantInsertedInDdbTopic.addSubscription(new SqsSubscription(toPutDefaultIndexHtmlInS3Queue, {rawMessageDelivery: true}))
@@ -94,7 +94,7 @@ export class DynamoDBStack extends Stack {
 
         // grants:
         newTenantInsertedInDdbTopic.grantPublish(newTenantInsertedLambda)
-        props.onPrettyMTUploadBucket.grantWrite(toPutDefaultIndexHtmlInS3Lambda)
+        props.onPrettyMTUploadBucket.grantReadWrite(toPutDefaultIndexHtmlInS3Lambda) // need both read and write, see headObjectCommand in toPutDefaultIndexHtmlInS3Lambda
 
         new StringParameter(this, 'baseTable', {
             parameterName: TABLES.BASE_TABLE_PARAMETER_NAME,
