@@ -1,6 +1,7 @@
 import {CopyObjectCommand, HeadObjectCommand, S3Client} from '@aws-sdk/client-s3'
 import {SQSEvent} from 'aws-lambda'
-import {tryCatch} from "../api-gateway/api-lambda/express-app/utils/tryCatch";
+import {TenantDataSchema} from "../api-gateway/api-lambda/express-app/models/tenantModel";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 
 const s3Client = new S3Client()
 const onPrettyMTUploadBucketName = process.env.onPrettyMTUploadBucketName
@@ -12,34 +13,33 @@ exports.handler = async (event: SQSEvent) => {
     try {
         for (const record of event.Records) {
             const messageId = record.messageId
-            console.log(record.body)
-
+            const {data: maybeTenantData} = unmarshall(JSON.parse(record.body))
+            console.log(maybeTenantData)
             const src = `${onPrettyMTUploadBucketName}/default/index.html`
-            const dest = `${onPrettyMTUploadBucketName}/test/index.html`
 
-            // check if src exists
-            const headObjectCommand = new HeadObjectCommand({
-                Bucket: onPrettyMTUploadBucketName,
-                Key: src,
-            })
-            const {data: checkIfExistsData, error:checkIfExistsDataErr} = await tryCatch(s3Client.send(headObjectCommand))
-            if (checkIfExistsDataErr) {
-                batchItemFailures.push({itemIdentifier: messageId})
-                console.error(`${src} does not exist`)
-            }
+            try {
+                const tenantData = TenantDataSchema.parse(maybeTenantData)
+                const dest = `${onPrettyMTUploadBucketName}/${tenantData.tenantOwnerIdentityId}/index.html`
+                // check if src exists
+                const headObjectCommand = new HeadObjectCommand({
+                    Bucket: onPrettyMTUploadBucketName,
+                    Key: src,
+                })
+                await  s3Client.send(headObjectCommand)
 
-            // Copy src -> dest
-            const copyObjectCommand = new CopyObjectCommand({
-                Bucket: onPrettyMTUploadBucketName,
-                CopySource: src,
-                Key: dest
-            })
-            const {data, error} = await tryCatch(s3Client.send(copyObjectCommand))
-            if (error) {
+                // Copy src -> dest
+                const copyObjectCommand = new CopyObjectCommand({
+                    Bucket: onPrettyMTUploadBucketName,
+                    CopySource: src,
+                    Key: dest
+                })
+                await s3Client.send(copyObjectCommand)
+
+                console.log(`info: copied ${src} -> ${dest}`)
+            } catch (e) {
+                console.error(e)
                 batchItemFailures.push({itemIdentifier: messageId})
-                console.error(`could not CopyObject ${src} -> ${dest}`)
             }
-            console.log(`info: copied ${src} -> ${dest}`)
 
         }
         return {
