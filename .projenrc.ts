@@ -30,7 +30,8 @@ const project = new awscdk.AwsCdkTypeScriptApp({
         'express',
         'serverless-http',
         '@aws-sdk/client-cloudfront',
-        '@aws-sdk/client-cognito-identity'
+        '@aws-sdk/client-cognito-identity',
+        '@aws-sdk/client-sns'
     ],
     devDeps: ['cdk-dia', '@types/express'],
 
