@@ -1,8 +1,6 @@
 import {CfnOutput, Stack, StackProps} from 'aws-cdk-lib';
-import {Certificate, CertificateValidation} from 'aws-cdk-lib/aws-certificatemanager';
 import {UserPool, UserPoolClient,} from 'aws-cdk-lib/aws-cognito';
 import {Code, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
-import {HostedZone} from 'aws-cdk-lib/aws-route53';
 import {StringParameter} from 'aws-cdk-lib/aws-ssm';
 import {Construct} from 'constructs';
 import {ThisEnvironment} from '../../interfaces';
@@ -16,7 +14,7 @@ interface CognitoStackProps extends StackProps {
 }
 
 export class CognitoStack extends Stack {
-
+    private readonly onPrettyMTUploadBucket: Bucket
     constructor(scope: Construct, id: string, props: CognitoStackProps) {
         super(scope, id, props);
 
@@ -55,7 +53,7 @@ export class CognitoStack extends Stack {
         });
 
         // Create on pretty multi tenancy upload bucket
-        const onPrettyMTUploadBucket = new Bucket(this, 'OnPrettyMTUploadBucket', {
+        this.onPrettyMTUploadBucket = new Bucket(this, 'OnPrettyMTUploadBucket', {
             cors: [{
                 allowedMethods: [HttpMethods.PUT, HttpMethods.POST, HttpMethods.GET, HttpMethods.DELETE, HttpMethods.HEAD],
                 allowedOrigins: ['*'],
@@ -63,10 +61,10 @@ export class CognitoStack extends Stack {
                 exposedHeaders: ['ETag'],
             }],
         })
-        onPrettyMTUploadBucket.addToResourcePolicy(new PolicyStatement({
+        this.onPrettyMTUploadBucket.addToResourcePolicy(new PolicyStatement({
             actions: ['s3:GetObject'],
             principals: [new ServicePrincipal('cloudfront.amazonaws.com')],
-            resources: [onPrettyMTUploadBucket.arnForObjects('*')],
+            resources: [this.onPrettyMTUploadBucket.arnForObjects('*')],
             conditions: {ArnLike: {'AWS:SourceArn': `arn:aws:cloudfront::${props.env.account}:distribution/${props.env.multiTenant.distributionId}`}}
         }))
 
@@ -82,7 +80,7 @@ export class CognitoStack extends Stack {
         });
         identityPool.authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
             actions: ["s3:List*",],
-            resources: [onPrettyMTUploadBucket.bucketArn],
+            resources: [this.onPrettyMTUploadBucket.bucketArn],
             conditions: {"StringLike": {"s3:prefix": ["${cognito-identity.amazonaws.com:sub}/*"]}}
 
         }))
@@ -98,7 +96,7 @@ export class CognitoStack extends Stack {
                 "s3:PutObjectVersionTagging",
                 "s3:Abort*"
             ],
-            resources: [onPrettyMTUploadBucket.arnForObjects('${cognito-identity.amazonaws.com:sub}/*')],
+            resources: [this.onPrettyMTUploadBucket.arnForObjects('${cognito-identity.amazonaws.com:sub}/*')],
             // conditions: {"StringLike": {"s3:prefix": ["${cognito-identity.amazonaws.com:sub}/*"]}}
         }))
 
