@@ -69,7 +69,7 @@ export class DynamoDBStack extends Stack {
                 maxReceiveCount: 3
             }
         })
-        newTenantInsertedInDdbTopic.addSubscription(new SqsSubscription(toCreateCloudFrontTenantQueue))
+        newTenantInsertedInDdbTopic.addSubscription(new SqsSubscription(toCreateCloudFrontTenantQueue, {rawMessageDelivery: true}))
 
 
         // grants:
