@@ -32,7 +32,8 @@ const project = new awscdk.AwsCdkTypeScriptApp({
         '@aws-sdk/client-cloudfront',
         '@aws-sdk/client-cognito-identity',
         '@aws-sdk/client-sns',
-        '@aws-sdk/client-s3'
+        '@aws-sdk/client-s3',
+        'zod',
     ],
     devDeps: ['cdk-dia', '@types/express'],
 
