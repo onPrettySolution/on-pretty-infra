@@ -6,11 +6,13 @@ import {Topic} from "aws-cdk-lib/aws-sns";
 import {NodejsFunction} from 'aws-cdk-lib/aws-lambda-nodejs';
 import {Runtime, StartingPosition} from 'aws-cdk-lib/aws-lambda';
 import {RetentionDays} from 'aws-cdk-lib/aws-logs';
-import {DynamoEventSource} from 'aws-cdk-lib/aws-lambda-event-sources';
+import {DynamoEventSource, SqsEventSource} from 'aws-cdk-lib/aws-lambda-event-sources';
 import {Queue} from "aws-cdk-lib/aws-sqs";
 import {SqsSubscription} from 'aws-cdk-lib/aws-sns-subscriptions';
+import {Bucket} from "aws-cdk-lib/aws-s3";
 
 interface DynamoDBStackProps extends StackProps {
+    onPrettyMTUploadBucket: Bucket
 }
 
 interface Tables {
@@ -23,7 +25,7 @@ export const TABLES: Tables = {
 
 export class DynamoDBStack extends Stack {
 
-    constructor(scope: Construct, id: string, props?: DynamoDBStackProps) {
+    constructor(scope: Construct, id: string, props: DynamoDBStackProps) {
         super(scope, id, props);
 
         const base = new Table(this, 'Base', {
@@ -47,7 +49,7 @@ export class DynamoDBStack extends Stack {
             runtime: Runtime.NODEJS_22_X,
             environment: {
                 TZ: 'Europe/Kiev',
-                NEW_TENANT_INSERTED_TOPIC_ARN: newTenantInsertedInDdbTopic.topicArn
+                newTenantInsertedInDdbTopicArn: newTenantInsertedInDdbTopic.topicArn
             },
             logRetention: RetentionDays.ONE_MONTH,
         })
@@ -63,14 +65,32 @@ export class DynamoDBStack extends Stack {
         }))
 
         // create Queue to proces Tenant Insert events
-        const toCreateCloudFrontTenantQueue = new Queue(this, 'toCreateCloudFrontTenantQueue', {
+
+        // const toCreateCloudFrontTenantQueue = new Queue(this, 'toCreateCloudFrontTenantQueue', {
+        //     deadLetterQueue: {
+        //         queue: new Queue(this, 'DlqToCreateCloudFrontTenant', {retentionPeriod: Duration.days(14)}),
+        //         maxReceiveCount: 3
+        //     }
+        // })
+        // newTenantInsertedInDdbTopic.addSubscription(new SqsSubscription(toCreateCloudFrontTenantQueue, {rawMessageDelivery: true}))
+
+        const toPutDefaultIndexHtmlInS3Queue = new Queue(this, 'toPutDefaultIndexHtmlInS3Queue', {
             deadLetterQueue: {
-                queue: new Queue(this, 'DlqToCreateCloudFrontTenant', {retentionPeriod: Duration.days(14)}),
+                queue: new Queue(this, 'DlqToPutDefaultIndexHtmlInS3Queue', {retentionPeriod: Duration.days(14)}),
                 maxReceiveCount: 3
             }
         })
-        newTenantInsertedInDdbTopic.addSubscription(new SqsSubscription(toCreateCloudFrontTenantQueue, {rawMessageDelivery: true}))
-
+        newTenantInsertedInDdbTopic.addSubscription(new SqsSubscription(toPutDefaultIndexHtmlInS3Queue, {rawMessageDelivery: true}))
+        const toPutDefaultIndexHtmlInS3Lambda = new NodejsFunction(this, 'toPutDefaultIndexHtmlInS3Lambda', {
+            runtime: Runtime.NODEJS_22_X,
+            environment: {
+                TZ: 'Europe/Kiev',
+                onPrettyMTUploadBucketName: props.onPrettyMTUploadBucket.bucketName
+            },
+            logRetention: RetentionDays.ONE_MONTH,
+        })
+        toPutDefaultIndexHtmlInS3Queue.grantSendMessages(toPutDefaultIndexHtmlInS3Lambda)
+        toPutDefaultIndexHtmlInS3Lambda.addEventSource(new SqsEventSource(toPutDefaultIndexHtmlInS3Queue, { reportBatchItemFailures: true, batchSize: 10, maxConcurrency: 2 }))
 
         // grants:
         newTenantInsertedInDdbTopic.grantPublish(newTenantInsertedLambda)
@@ -80,6 +100,7 @@ export class DynamoDBStack extends Stack {
         });
 
         new CfnOutput(this, 'newTenantInsertedLambda.logGroupName', {value: newTenantInsertedLambda.logGroup.logGroupName})
+        new CfnOutput(this, 'toPutDefaultIndexHtmlInS3Lambda.logGroupName', {value: toPutDefaultIndexHtmlInS3Lambda.logGroup.logGroupName})
 
     }
 }

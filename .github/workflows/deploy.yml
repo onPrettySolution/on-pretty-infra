@@ -482,45 +482,6 @@ jobs:
             needs.Assets-FileAsset1.outputs.asset-hash }}.json
           no-fail-on-empty-changeset: "1"
           role-arn: arn:aws:iam::277707141071:role/cdk-hnb659fds-cfn-exec-role-277707141071-us-east-1
-  on-pretty-stage-DynamoDBStack-Deploy:
-    name: Deploy ghpipelineonprettystageDynamoDBStackE1FD1A3B
-    permissions:
-      contents: read
-      id-token: write
-    needs:
-      - Build-Build
-      - Assets-FileAsset2
-      - Assets-FileAsset3
-      - Assets-FileAsset4
-      - Assets-FileAsset5
-    runs-on: ubuntu-latest
-    steps:
-      - name: Authenticate Via OIDC Role
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-duration-seconds: 1800
-          role-skip-session-tagging: true
-          role-to-assume: arn:aws:iam::277707141071:role/GithubSupport-DeployRole
-      - name: Assume CDK Deploy Role
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-duration-seconds: 1800
-          role-skip-session-tagging: true
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
-          role-to-assume: arn:aws:iam::277707141071:role/cdk-hnb659fds-deploy-role-277707141071-us-east-1
-          role-external-id: Pipeline
-      - id: Deploy
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
-        with:
-          name: on-pretty-stage-DynamoDBStack
-          template: https://cdk-hnb659fds-assets-277707141071-us-east-1.s3.us-east-1.amazonaws.com/${{
-            needs.Assets-FileAsset2.outputs.asset-hash }}.json
-          no-fail-on-empty-changeset: "1"
-          role-arn: arn:aws:iam::277707141071:role/cdk-hnb659fds-cfn-exec-role-277707141071-us-east-1
   on-pretty-stage-MultiTenantDistributionStack-Deploy:
     name: Deploy ghpipelineonprettystageMultiTenantDistributionStack364289CF
     permissions:
@@ -528,7 +489,7 @@ jobs:
       id-token: write
     needs:
       - Build-Build
-      - Assets-FileAsset6
+      - Assets-FileAsset2
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate Via OIDC Role
@@ -554,7 +515,47 @@ jobs:
         with:
           name: on-pretty-stage-MultiTenantDistributionStack
           template: https://cdk-hnb659fds-assets-277707141071-us-east-1.s3.us-east-1.amazonaws.com/${{
-            needs.Assets-FileAsset6.outputs.asset-hash }}.json
+            needs.Assets-FileAsset2.outputs.asset-hash }}.json
+          no-fail-on-empty-changeset: "1"
+          role-arn: arn:aws:iam::277707141071:role/cdk-hnb659fds-cfn-exec-role-277707141071-us-east-1
+  on-pretty-stage-DynamoDBStack-Deploy:
+    name: Deploy ghpipelineonprettystageDynamoDBStackE1FD1A3B
+    permissions:
+      contents: read
+      id-token: write
+    needs:
+      - Build-Build
+      - Assets-FileAsset3
+      - Assets-FileAsset4
+      - Assets-FileAsset5
+      - Assets-FileAsset6
+      - on-pretty-stage-CognitoStack-Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate Via OIDC Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-duration-seconds: 1800
+          role-skip-session-tagging: true
+          role-to-assume: arn:aws:iam::277707141071:role/GithubSupport-DeployRole
+      - name: Assume CDK Deploy Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-duration-seconds: 1800
+          role-skip-session-tagging: true
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
+          role-to-assume: arn:aws:iam::277707141071:role/cdk-hnb659fds-deploy-role-277707141071-us-east-1
+          role-external-id: Pipeline
+      - id: Deploy
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: on-pretty-stage-DynamoDBStack
+          template: https://cdk-hnb659fds-assets-277707141071-us-east-1.s3.us-east-1.amazonaws.com/${{
+            needs.Assets-FileAsset3.outputs.asset-hash }}.json
           no-fail-on-empty-changeset: "1"
           role-arn: arn:aws:iam::277707141071:role/cdk-hnb659fds-cfn-exec-role-277707141071-us-east-1
   on-pretty-stage-ApiGatewayStack-Deploy:
@@ -566,7 +567,7 @@ jobs:
       - Build-Build
       - Assets-FileAsset7
       - Assets-FileAsset8
-      - Assets-FileAsset4
+      - Assets-FileAsset5
       - on-pretty-stage-DynamoDBStack-Deploy
     runs-on: ubuntu-latest
     steps:
