@@ -3,7 +3,7 @@ import {Certificate, CertificateValidation} from 'aws-cdk-lib/aws-certificateman
 import {CfnManagedLoginBranding, ManagedLoginVersion, UserPool, UserPoolClient,} from 'aws-cdk-lib/aws-cognito';
 import {Code, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
 import {ARecord, HostedZone, RecordTarget} from 'aws-cdk-lib/aws-route53';
-import {UserPoolDomainTarget} from 'aws-cdk-lib/aws-route53-targets';
+import {CloudFrontTarget, UserPoolDomainTarget} from 'aws-cdk-lib/aws-route53-targets';
 import {StringParameter} from 'aws-cdk-lib/aws-ssm';
 import {Construct} from 'constructs';
 import {ThisEnvironment} from '../../interfaces';
@@ -63,27 +63,26 @@ export class CognitoStack extends Stack {
             oAuth: {callbackUrls: [`https://${props.env.subDomain}.${props.env.domainName}/`, 'http://localhost:5173/']},
         });
 
-        const userPoolDomain01 = userPool01.addDomain('login01', {
-            customDomain: {
-                // Custom domain is not a valid subdomain: Was not able to resolve a DNS A record for the parent domain or domain parent is a top-level domain.
-                // domainName: `${props.env.loginSubDomain}-01.${props.env.subDomain}.${props.env.domainName}`,
-                domainName: `${props.env.loginSubDomain}-01-${props.env.subDomain}.${props.env.domainName}`,
-                certificate,
-            },
-            managedLoginVersion: ManagedLoginVersion.NEWER_MANAGED_LOGIN,
-        });
-
-        new CfnManagedLoginBranding(this, 'cfnManagedLoginBranding01', {
-            clientId: userPoolClient01.userPoolClientId,
-            userPoolId: userPool01.userPoolId,
-            useCognitoProvidedValues: true,
-        });
-
-        new ARecord(this, 'ARecord01', {
-            recordName: `${props.env.loginSubDomain}-01-${props.env.subDomain}`,
-            zone: hostedZone,
-            target: RecordTarget.fromAlias(new UserPoolDomainTarget(userPoolDomain01)),
-        });
+        // we don't need custom domain
+        // const userPoolDomain01 = userPool01.addDomain('login01', {
+        //     customDomain: {
+        //         // Custom domain is not a valid subdomain: Was not able to resolve a DNS A record for the parent domain or domain parent is a top-level domain.
+        //         // domainName: `${props.env.loginSubDomain}-01.${props.env.subDomain}.${props.env.domainName}`,
+        //         domainName: `${props.env.loginSubDomain}-01-${props.env.subDomain}.${props.env.domainName}`,
+        //         certificate,
+        //     },
+        //     managedLoginVersion: ManagedLoginVersion.NEWER_MANAGED_LOGIN,
+        // });
+        // new CfnManagedLoginBranding(this, 'cfnManagedLoginBranding01', {
+        //     clientId: userPoolClient01.userPoolClientId,
+        //     userPoolId: userPool01.userPoolId,
+        //     useCognitoProvidedValues: true,
+        // });
+        // new ARecord(this, 'ARecord01', {
+        //     recordName: `${props.env.loginSubDomain}-01-${props.env.subDomain}`,
+        //     zone: hostedZone,
+        //     target: RecordTarget.fromAlias(new UserPoolDomainTarget(userPoolDomain01)),
+        // });
 
         // Create on pretty multi tenancy upload bucket
         const onPrettyMTUploadBucket = new Bucket(this, 'OnPrettyMTUploadBucket', {
