@@ -1,9 +1,8 @@
 import {CfnOutput, Stack, StackProps} from 'aws-cdk-lib';
 import {Certificate, CertificateValidation} from 'aws-cdk-lib/aws-certificatemanager';
-import {CfnManagedLoginBranding, ManagedLoginVersion, UserPool, UserPoolClient,} from 'aws-cdk-lib/aws-cognito';
+import {UserPool, UserPoolClient,} from 'aws-cdk-lib/aws-cognito';
 import {Code, Function, Runtime} from 'aws-cdk-lib/aws-lambda';
-import {ARecord, HostedZone, RecordTarget} from 'aws-cdk-lib/aws-route53';
-import {CloudFrontTarget, UserPoolDomainTarget} from 'aws-cdk-lib/aws-route53-targets';
+import {HostedZone} from 'aws-cdk-lib/aws-route53';
 import {StringParameter} from 'aws-cdk-lib/aws-ssm';
 import {Construct} from 'constructs';
 import {ThisEnvironment} from '../../interfaces';
