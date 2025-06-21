@@ -3,10 +3,10 @@ import {DynamoDBStreamEvent} from 'aws-lambda'
 import {tryCatch} from "../api-gateway/api-lambda/express-app/utils/tryCatch";
 
 const snsClient = new SNSClient()
-const NEW_TENANT_INSERTED_TOPIC_ARN = process.env.NEW_TENANT_INSERTED_TOPIC_ARN
+const newTenantInsertedInDdbTopicArn = process.env.newTenantInsertedInDdbTopicArn
 
 exports.handler = async (event: DynamoDBStreamEvent) => {
-    if (!NEW_TENANT_INSERTED_TOPIC_ARN) throw new Error('NEW_TENANT_INSERTED_TOPIC_ARN undefined')
+    if (!newTenantInsertedInDdbTopicArn) throw new Error('newTenantInsertedInDdbTopicArn undefined')
 
     for (const record of event.Records) {
 
@@ -15,11 +15,11 @@ exports.handler = async (event: DynamoDBStreamEvent) => {
 
         // TODO: PublishBatchCommand
         const publishCommand = new PublishCommand({
-            TopicArn: NEW_TENANT_INSERTED_TOPIC_ARN,
+            TopicArn: newTenantInsertedInDdbTopicArn,
             Message: JSON.stringify(record.dynamodb.NewImage),
         })
         const {data, error} = await tryCatch(snsClient.send(publishCommand))
-        if (error) throw new Error(`err: could not publish in ${NEW_TENANT_INSERTED_TOPIC_ARN}, ${error.message}`)
-        console.log(`info: MessageId: ${data.MessageId} published in ${NEW_TENANT_INSERTED_TOPIC_ARN}`)
+        if (error) throw new Error(`err: could not publish in ${newTenantInsertedInDdbTopicArn}, ${error.message}`)
+        console.log(`info: MessageId: ${data.MessageId} published in ${newTenantInsertedInDdbTopicArn}`)
     }
 }
