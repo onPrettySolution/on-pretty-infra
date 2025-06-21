@@ -111,10 +111,15 @@ export class CognitoStack extends Stack {
             },
         });
         identityPool.authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            actions: ["s3:List*",],
+            resources: [onPrettyMTUploadBucket.bucketArn],
+            conditions: {"StringLike": {"s3:prefix": ["${cognito-identity.amazonaws.com:sub}/*"]}}
+
+        }))
+        identityPool.authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
             actions: [
                 "s3:GetObject*",
                 "s3:GetBucket*",
-                "s3:List*",
                 "s3:DeleteObject*",
                 "s3:PutObject",
                 "s3:PutObjectLegalHold",
@@ -124,7 +129,7 @@ export class CognitoStack extends Stack {
                 "s3:Abort*"
             ],
             resources: [onPrettyMTUploadBucket.arnForObjects('${cognito-identity.amazonaws.com:sub}/*')],
-            // conditions: {StringEquals: {'s3:prefix': '${cognito-identity.amazonaws.com:sub}/'}},
+            // conditions: {"StringLike": {"s3:prefix": ["${cognito-identity.amazonaws.com:sub}/*"]}}
         }))
 
         // These used in Readme.md
