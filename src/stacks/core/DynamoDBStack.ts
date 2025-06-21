@@ -47,12 +47,13 @@ export class DynamoDBStack extends Stack {
             runtime: Runtime.NODEJS_22_X,
             environment: {
                 TZ: 'Europe/Kiev',
-                INSERT_TOPIC_ARN: newTenantInsertedInDdbTopic.topicArn
+                NEW_TENANT_INSERTED_TOPIC_ARN: newTenantInsertedInDdbTopic.topicArn
             },
             logRetention: RetentionDays.ONE_MONTH,
         })
         newTenantInsertedLambda.addEventSource(new DynamoEventSource(base, {
             startingPosition: StartingPosition.LATEST,
+            batchSize: 10,
             filters: [{
                 pattern: JSON.stringify({
                     eventName: ["INSERT"],

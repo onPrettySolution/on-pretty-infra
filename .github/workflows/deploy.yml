@@ -156,6 +156,35 @@ jobs:
         name: Publish Assets-FileAsset12
         run: /bin/bash
           ./cdk.out/assembly-gh-pipeline-on-pretty-stage/publish-Assets-FileAsset12-step.sh
+  Assets-FileAsset13:
+    name: Publish Assets Assets-FileAsset13
+    needs:
+      - Build-Build
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    outputs:
+      asset-hash: ${{ steps.Publish.outputs.asset-hash }}
+    steps:
+      - name: Download cdk.out
+        uses: actions/download-artifact@v4
+        with:
+          name: cdk.out
+          path: cdk.out
+      - name: Install
+        run: npm install --no-save cdk-assets
+      - name: Authenticate Via OIDC Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-west-2
+          role-duration-seconds: 1800
+          role-skip-session-tagging: true
+          role-to-assume: arn:aws:iam::277707141071:role/GithubSupport-DeployRole
+      - id: Publish
+        name: Publish Assets-FileAsset13
+        run: /bin/bash
+          ./cdk.out/assembly-gh-pipeline-on-pretty-stage/publish-Assets-FileAsset13-step.sh
   Assets-FileAsset2:
     name: Publish Assets Assets-FileAsset2
     needs:
@@ -432,6 +461,8 @@ jobs:
     needs:
       - Build-Build
       - Assets-FileAsset2
+      - Assets-FileAsset3
+      - Assets-FileAsset4
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate Via OIDC Role
@@ -467,7 +498,7 @@ jobs:
       id-token: write
     needs:
       - Build-Build
-      - Assets-FileAsset3
+      - Assets-FileAsset5
     runs-on: ubuntu-latest
     steps:
       - name: Authenticate Via OIDC Role
@@ -493,7 +524,7 @@ jobs:
         with:
           name: on-pretty-stage-MultiTenantDistributionStack
           template: https://cdk-hnb659fds-assets-277707141071-us-east-1.s3.us-east-1.amazonaws.com/${{
-            needs.Assets-FileAsset3.outputs.asset-hash }}.json
+            needs.Assets-FileAsset5.outputs.asset-hash }}.json
           no-fail-on-empty-changeset: "1"
           role-arn: arn:aws:iam::277707141071:role/cdk-hnb659fds-cfn-exec-role-277707141071-us-east-1
   on-pretty-stage-ApiGatewayStack-Deploy:
@@ -503,9 +534,9 @@ jobs:
       id-token: write
     needs:
       - Build-Build
-      - Assets-FileAsset4
-      - Assets-FileAsset5
       - Assets-FileAsset6
+      - Assets-FileAsset7
+      - Assets-FileAsset4
       - on-pretty-stage-DynamoDBStack-Deploy
     runs-on: ubuntu-latest
     steps:
@@ -532,7 +563,7 @@ jobs:
         with:
           name: on-pretty-stage-ApiGatewayStack
           template: https://cdk-hnb659fds-assets-277707141071-us-east-1.s3.us-east-1.amazonaws.com/${{
-            needs.Assets-FileAsset4.outputs.asset-hash }}.json
+            needs.Assets-FileAsset6.outputs.asset-hash }}.json
           no-fail-on-empty-changeset: "1"
           role-arn: arn:aws:iam::277707141071:role/cdk-hnb659fds-cfn-exec-role-277707141071-us-east-1
   on-pretty-stage-CloudFrontDistribution-Deploy:
@@ -542,12 +573,12 @@ jobs:
       id-token: write
     needs:
       - Build-Build
-      - Assets-FileAsset7
       - Assets-FileAsset8
       - Assets-FileAsset9
       - Assets-FileAsset10
       - Assets-FileAsset11
       - Assets-FileAsset12
+      - Assets-FileAsset13
       - on-pretty-stage-ApiGatewayStack-Deploy
     runs-on: ubuntu-latest
     steps:
@@ -574,6 +605,6 @@ jobs:
         with:
           name: on-pretty-stage-CloudFrontDistribution
           template: https://cdk-hnb659fds-assets-277707141071-us-east-1.s3.us-east-1.amazonaws.com/${{
-            needs.Assets-FileAsset7.outputs.asset-hash }}.json
+            needs.Assets-FileAsset8.outputs.asset-hash }}.json
           no-fail-on-empty-changeset: "1"
           role-arn: arn:aws:iam::277707141071:role/cdk-hnb659fds-cfn-exec-role-277707141071-us-east-1
