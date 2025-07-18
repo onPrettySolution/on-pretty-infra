@@ -15,6 +15,13 @@ Authorization: Bearer {{token}}
 
 {"tenantName":"tenant10"}
 
+### create invalidation (see TenantSchema for ref)
+POST {{host}}/api/invalidations
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{"distributionTenantId": "dt_303SQIJ3uJ25MoUfHa9OkCTNtFq"}
+
 ### update report
 PUT {{host}}/api/reports/1736697686488
 Content-Type: application/json

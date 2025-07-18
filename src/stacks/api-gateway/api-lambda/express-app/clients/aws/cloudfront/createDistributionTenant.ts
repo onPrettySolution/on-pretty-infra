@@ -30,8 +30,10 @@ export const createDistributionTenant = async (input: CreateDistributionTenantIn
     if (!data.DistributionTenant) throw new Error("DistributionTenant is undefined");
     if (!data.DistributionTenant.DistributionId) throw new Error("DistributionId is undefined");
     if (!data.DistributionTenant.Domains) throw new Error("Domains is undefined");
+    if (!data.DistributionTenant.Id) throw new Error("Id is undefined");
     return {
         distributionId: data.DistributionTenant.DistributionId,
-        domains: data.DistributionTenant.Domains
+        domains: data.DistributionTenant.Domains,
+        distributionTenantId: data.DistributionTenant.Id
     };
 };

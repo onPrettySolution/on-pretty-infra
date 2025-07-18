@@ -6,6 +6,7 @@ import express from 'express';
 import { authorizerMiddleware } from './middlewares/authorizerMiddleware';
 import { loggerMiddleware } from './middlewares/loggerMiddleware';
 import tenantRoutes from './routes/tenantRoutes';
+import invalidationRoutes from "./routes/invalidationRoutes";
 
 interface IRequestContext {
   authorizer: {
@@ -28,6 +29,7 @@ app.use(authorizerMiddleware);
 
 // routes
 app.use('/api/tenants', tenantRoutes);
+app.use('/api/invalidations', invalidationRoutes);
 app.route('/api/tenants/debug').all((req, res) => {
   res.json({
     body: req.body,
