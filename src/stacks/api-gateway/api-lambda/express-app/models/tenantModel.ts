@@ -44,6 +44,7 @@ export const DomainEntrySchema = z.object({
 });
 
 export const TenantDataSchema = z.object({
+    distributionTenantId: z.string(),
     distributionEndpoint: z.string(),
     distributionId: z.string(),
     domains: z.array(DomainEntrySchema),

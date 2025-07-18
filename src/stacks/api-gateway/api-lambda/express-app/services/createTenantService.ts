@@ -30,6 +30,7 @@ export const createTenantService = async (input: CreateTenantInput) => {
         sub: claims.sub,
         identityId,
         distributionId: dist.distributionId,
+        distributionTenantId: dist.distributionTenantId,
         domains: dist.domains,
         distributionEndpoint,
         tableName

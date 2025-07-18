@@ -12,6 +12,8 @@ interface saveTenantToDbInput {
     identityId: string,
     // Multi-tenant CloudFront distribution ID, ex: E18GDWUAFG5IU8
     distributionId: string,
+    // The ID of the distribution tenant. ex: dt_2yq2uFYMVyIkVWU6FAZ4lw55JXz
+    distributionTenantId: string,
     // tenant01.on.stage.prettysolution.com
     domains: any[],
     // d2748vdoi7cuu0.cloudfront.net
@@ -25,6 +27,7 @@ export const saveTenantToDb = async (input: saveTenantToDbInput): Promise<Tenant
         tenantOwnerSub: input.sub,
         tenantOwnerIdentityId: input.identityId,
         distributionId: input.distributionId,
+        distributionTenantId: input.distributionTenantId,
         domains: input.domains,
         name: input.tenantName,
         distributionEndpoint: input.distributionEndpoint
